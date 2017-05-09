@@ -8,6 +8,7 @@ entity center_controller is
     );
     port
     (
+        RST: in std_logic;
         CLK: in std_logic;
         PIC_LOADED: in std_logic; -- TODO: 这个信号实际上是RST
     	NEW_GAME: in std_logic; -- ???
