@@ -6,6 +6,7 @@ entity center_controller is
     );
     port
     (
+        RST: in std_logic;
         CLK: in std_logic;
         PIC_LOADED: in std_logic;
     	NEW_GAME: in std_logic;
@@ -62,6 +63,7 @@ entity game_logic_controller is
     );
     port
     (
+        RST: in std_logic;
     	NEW_GAME: in std_logic;
     	CLK: in std_logic;
     	RANDOM_SEED: in std_logic_vector(15 downto 0);
