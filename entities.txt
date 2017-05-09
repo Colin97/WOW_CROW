@@ -1,4 +1,6 @@
-center_controller.vhd
+-- TODO: define package
+
+center_controller.vhd -- TODO: rename
 entity center_controller is
     generic
     (
@@ -7,35 +9,36 @@ entity center_controller is
     port
     (
         CLK: in std_logic;
-        PIC_LOADED: in std_logic;
-    	NEW_GAME: in std_logic;
-    	GAME_OVER: out std_logic;
+        PIC_LOADED: in std_logic; -- TODO: 这个信号实际上是RST
+    	NEW_GAME: in std_logic; -- ???
+    	GAME_OVER: out std_logic; -- ???
         
-        --VGA
+        -- VGA
         VGA_HSYNC: out std_logic;
         VGA_VSYNC: out std_logic;
         VGA_RED: out std_logic_vector(3 downto 0);
         VGA_GREEN: out std_logic_vector(3 downto 0);
         VGA_BLUE: out std_logic_vector(3 downto 0)
         
-        --SERIAL
-        RX: in std_logic;
+        -- UART (2 players)
+        RX0: in std_logic;
+        RX1: in std_logic;
 
-        --MEMORY
-        MEMORY_ADDR: out std_logic_vector(19 downto 0)
-        MEMORY_DATA: inout std_logic_vector(31 downto 0)
-        MEMORY_OE: out std_logic;
-        MEMORY_WE: out std_logic;
+        -- SRAM
+        SRAM_ADDR: out std_logic_vector(19 downto 0)
+        SRAM_DQ: inout std_logic_vector(31 downto 0)
+        SRAM_OE_n: out std_logic;
+        SRAM_WE_n: out std_logic;
 
-        --LED
-        LED: out STD_LOGIC_VECTOR(3 downto 0);
+        -- LED
+        LED: out std_logic_vector(3 downto 0);
         
-        --digital tube
+        -- digital tube (???)
         DIGITAL_TUBE1: out std_logic_vector(6 downto 0);
         DIGITAL_TUBE2: out std_logic_vector(6 downto 0);
         DIGITAL_TUBE3: out std_logic_vector(6 downto 0); 
 
-        --SD CARD ????
+        -- SD CARD -- TODO
         SD_CLK: out std_logic;
         SD_CMD: out std_logic;
         SD_DATA0_DO: out std_logic;
@@ -43,51 +46,49 @@ entity center_controller is
         SD_DATA2: out std_logic;
         SD_DATA3_CD: out std_logic;
         SD_NCD: out std_logic;
-        SD_WP: out std_logic;
-
-        --REGISTER  ????
-        REG_ADDR: out std_logic_vector(7 downto 0)
-        REG_DATA: inout std_logic_vector(31 downto 0)
-
+        SD_WP: out std_logic
     );
 end;
 
-game_logic_controller.vhd
-entity game_logic_controller is
+game_logic.vhd
+entity game_logic is
     generic
     (
-        INIT_LIFE: integer := 5
+        MAX_LIFE: integer := 5
         MAX_CROW: integer := 8
-        MAX_SHIT_PER_CROW: integer := 4
+        MAX_BULLET_PER_CROW: integer := 4
     );
     port
     (
-    	NEW_GAME: in std_logic;
+    	NEW_GAME: in std_logic; -- 这个信号实际上是RST
     	CLK: in std_logic;
     	RANDOM_SEED: in std_logic_vector(15 downto 0);
 
     	ROLL: in std_logic_vector(15 downto 0);
         PITCH: in std_logic_vector(15 downto 0);
     	
-    	GAME_STATE: out std_logic_vector(1 downto 0); --00 未开始 -01进行中 --10已结束
-    	PLAYER_POS: out std_logic_vector(9 downto 0);
-    	REMAIN_LIFE: out std_logic_vector(2 downto 0);
-    	SCORE: out std_logic_vector(19 downto 0);
-    	CROW_IN_SCREEN: out std_logic_vector(7 downto 0); --1 bit per crow
+        -- TODO: typedef
+    	GAME_STATE: out std_logic_vector(1 downto 0); -- 00 未开始 01进行中 10已结束 -- TODO: 考虑使用枚举类型
+        -- TODO: refactor
+    	PLAYER1_X: out std_logic_vector(9 downto 0);
+    	PLAYER1_LIFE: out std_logic_vector(2 downto 0);
+    	PLAYER1_SCORE: out std_logic_vector(19 downto 0);
+    	CROW_IN_SCREEN: out std_logic_vector(7 downto 0); -- 1 bit per crow
     	CROW_ROW: out std_logic_vector(15 downto 0); -- 2 bit per crow  00,10: left->right  01,11: right->left
     	CROW_POS: out std_logic_vector(79 downto 0); -- 10 bit per crow
-    	HAS_SHIT: out std_logic_vector(31 downto 0);
-    	SHIT_HEIGHT: out std_logic_vector(319 downto 0); -- 10 bit per shit
+    	HAS_BULLET: out std_logic_vector(31 downto 0);
+    	BULLET_HEIGHT: out std_logic_vector(319 downto 0); -- 10 bit per sh*t
     );
 end;
 
 sram_controller.vhd
-entity game_logic_controller is
+entity sram_controller is
     port
     (
     	CLK: in std_logic;
         RST: in std_logic;
 
+        -- TODO: refactor, 分离inout
         VGA_ADDR: in std_logic_vector(19 downto 0);
         VGA_DQ: inout std_logic_vector(15 downto 0);
         VGA_WE_n: in std_logic;
@@ -112,8 +113,8 @@ entity game_logic_controller is
     );
 end;
 
-sensor_controller.vhd
-entity sensor_controller is
+imu.vhd
+entity imu is
     port
     (
         CLK: in std_logic;
@@ -137,14 +138,15 @@ entity sensor_controller is
     );
 end;
 
-render.vhd
-entity render is
+renderer.vhd
+entity renderer is
     port
     (
         CLK: in std_logic;
         RST: in std_logic;
         READY: in std_logic;
 		
+        --  见上
 		GAME_STATE: in std_logic_vector(1 downto 0); 
     	PLAYER_POS: in std_logic_vector(9 downto 0);
     	REMAIN_LIFE: in std_logic_vector(2 downto 0);
@@ -170,14 +172,14 @@ entity vga_controller is
         clock_freq: integer := 40000000;
 
         h_active: integer := 800;
-        h_front_porch: integer := ?;
-        h_sync_pulse: integer := ?;
-        h_back_porch: integer := ?;
+        h_front_porch: integer := 40;
+        h_sync_pulse: integer := 128;
+        h_back_porch: integer := 88;
 
         v_active: integer := 600;
-        v_front_porch: integer := ?;
-        v_sync_pulse: integer := ?;
-        v_back_porch: integer := ?
+        v_front_porch: integer := 1;
+        v_sync_pulse: integer := 4;
+        v_back_porch: integer := 23
         -- TODO: sync pole
     );
     port
@@ -185,6 +187,7 @@ entity vga_controller is
         VGA_CLK: in std_logic;
         RST: in std_logic;
 
+        -- TODO: refactor, 见上
         VGA_ADDR: out std_logic_vector(19 downto 0);
         VGA_DQ: inout std_logic_vector(15 downto 0);
         VGA_WE_n: out std_logic;
@@ -204,8 +207,8 @@ uart.vhd
 entity uart is
     generic
     (
-        CLK_FREQ: integer := 50000000;
-        BAUD: integer := 115200 -- ???
+        CLK_FREQ: integer := 80000000;
+        BAUD: integer := 115200 -- 波特率
     );
     port
     (
@@ -215,8 +218,7 @@ entity uart is
         
         DATA_READ: out std_logic_vector(7 downto 0);
         DATA_READY: out std_logic;
-        DATA_ERROR: out std_logic;
-        DBG_STATE: out std_logic_vector(2 downto 0)
+        DATA_ERROR: out std_logic
     );
 end;
 
@@ -226,14 +228,32 @@ entity bootloader is
     (
         CLK: in std_logic;
         RST: in std_logic;
-        READY: in std_logic;
 
         BOOT_ADDR: out std_logic_vector(19 downto 0);
         BOOT_DQ: inout std_logic_vector(15 downto 0);
         BOOT_WE_n: out std_logic;
         BOOT_OE_n: out std_logic;
 
-        FINISHED: out std_logic;
+        DONE: out std_logic;
+
+        -- TODO: SD interface
     );
 end;
-spi_controller.vhd
+
+spi.vhd
+entity spi is
+    port
+    (
+        CLK: in std_logic;
+        RST: in std_logic;
+
+        SCLK: out std_logic;
+        MOSI: out std_logic;
+        MISO: in std_logic;
+
+        -- TODO
+        DIN: in std_logic_vector(7 downto 0);
+        DOUT: out std_logic_vector(7 downto 0);
+        WE: in std_logic
+    );
+end;
