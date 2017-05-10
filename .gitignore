@@ -1,0 +1,11 @@
+# DS_Store
+.DS_Store
+
+# Outputs
+db/
+incremental_db/
+output_files/
+simulation/
+
+# Bak
+*.bak
