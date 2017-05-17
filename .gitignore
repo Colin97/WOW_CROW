@@ -10,6 +10,7 @@ incremental_db/
 output_files/
 simulation/
 *.rpt
+*.bin
 
 # Bak
 *.bak
