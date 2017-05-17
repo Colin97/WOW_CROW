@@ -31,6 +31,7 @@ architecture image_render_bhv of image_render is
     shared variable row : integer;
     shared variable col : integer;
     shared variable cnt : integer;
+    shared variable alpha : std_logic;
 begin 
     dout <= data when dout_en = '1' else "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
     main : process(clk, rst)
@@ -50,15 +51,24 @@ begin
                 when read =>
                     if sram_done = '1' then
                         if cnt MOD 2 = 0 then
-                            data(15 downto 0) <= din(15 downto 0);
+                            alpha := din(0);
                         else
-                            data(15 downto 0) <= din(31 downto 16);
+                            alpha := din(16);
                         end if;
-                        current_state <= write;
-                        oe_n <= '1';
-                        we_n <= '0';
-                        addr <= base_address + (row + x) * VGA_WIDTH + (col + y);
-                        dout_en <= '1';
+                        if (row + x) >= VGA_HEIGHT or (col + y) >= VGA_WIDTH or alpha = '0' then 
+                            current_state <= write;
+                        else
+                            if cnt MOD 2 = 0 then
+                                data(15 downto 0) <= din(15 downto 0);
+                            else
+                                data(15 downto 0) <= din(31 downto 16);
+                            end if;
+                            current_state <= write;
+                            oe_n <= '1';
+                            we_n <= '0';
+                            addr <= base_address + (row + x) * VGA_WIDTH + (col + y);
+                            dout_en <= '1';
+                        end if;
                     end if;
                 when write =>
                     if sram_done = '1' then
