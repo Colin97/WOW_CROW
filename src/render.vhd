@@ -23,8 +23,8 @@ entity render is
 end entity render;
 
 architecture render_bhv of render is 
-    type state is (init, render_background, render_player, render_crow, render_shit, done);
-    signal current_state : state := init;
+    type state is (s_init, s_render_background, s_render_player, s_render_crow, s_render_bullet, s_done);
+    signal current_state : state := s_init;
     signal image_id : integer range 0 to 31;
     signal render_addr : integer range 0 to 1048575;
     signal x : integer range 0 to VGA_WIDTH;
@@ -51,7 +51,7 @@ architecture render_bhv of render is
         );
     end component;
 begin 
-    img_render : image_render 
+    image_render_inst : image_render 
     port map (
         image_id => image_id,
         base_address => render_addr,

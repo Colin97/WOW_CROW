@@ -24,8 +24,8 @@ entity image_render is
 end entity image_render;
 
 architecture image_render_bhv of image_render is 
-    type state is (init, read, write, done);
-    signal current_state : state := init;
+    type state is (s_init, s_read, s_write, s_done);
+    signal current_state : state := s_init;
     signal data : std_logic_vector(31 downto 0);
     signal dout_en : std_logic;
     shared variable row : integer;
@@ -37,7 +37,7 @@ begin
     main : process(clk, rst)
     begin
         if rst = '1' then
-            current_state <= read;
+            current_state <= s_read;
             row := 0;
             col := 0;
             cnt := 0;
@@ -48,7 +48,7 @@ begin
             addr <= image_address(image_id) + cnt / 2;
         elsif rising_edge(clk) then
             case current_state is
-                when read =>
+                when s_read =>
                     if sram_done = '1' then
                         if cnt MOD 2 = 0 then
                             alpha := din(0);
@@ -56,21 +56,21 @@ begin
                             alpha := din(16);
                         end if;
                         if (row + x) >= VGA_HEIGHT or (col + y) >= VGA_WIDTH or alpha = '0' then 
-                            current_state <= write;
+                            current_state <= s_write;
                         else
                             if cnt MOD 2 = 0 then
                                 data(15 downto 0) <= din(15 downto 0);
                             else
                                 data(15 downto 0) <= din(31 downto 16);
                             end if;
-                            current_state <= write;
+                            current_state <= s_write;
                             oe_n <= '1';
                             we_n <= '0';
                             addr <= base_address + (row + x) * VGA_WIDTH + (col + y);
                             dout_en <= '1';
                         end if;
                     end if;
-                when write =>
+                when s_write =>
                     if sram_done = '1' then
                         col := col + 1;
                         cnt := cnt + 1;
@@ -79,18 +79,18 @@ begin
                             row := row + 1;
                         end if;
                         if row = image_height(image_id) then
-                            current_state <= done;
+                            current_state <= s_done;
                             done <= '1';
                         else
-                            current_state <= read;
+                            current_state <= s_read;
                             oe_n <= '0';
                             we_n <= '1';
                             dout_en <= '0';
                             addr <= image_address(image_id) + cnt / 2;
                         end if;
                     end if;
-                when others =>
-                    current_state <= init;
+                when s_others =>
+                    current_state <= s_init;
             end case;
         end if;
     end process;
