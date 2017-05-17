@@ -13,7 +13,7 @@ entity image_render is
         base_address : in integer range 0 to 1048575;
         x : in integer range 0 to VGA_WIDTH;
         y : in integer range 0 to VGA_HEIGHT;
-        rst, clock : in std_logic;
+        rst, clk : in std_logic;
         din : in std_logic_vector(31 downto 0);
         dout : out std_logic_vector(31 downto 0);
         we_n, oe_n: out std_logic;
@@ -46,7 +46,7 @@ begin
             we_n <= '1';
             dout_en <= '0';
             addr <= image_address(image_id) + cnt / 2;
-        elsif clk = '1' and clk'event then
+        elsif rising_edge(clk) then
             case current_state is
                 when read =>
                     if sram_done = '1' then
@@ -90,7 +90,7 @@ begin
                         end if;
                     end if;
                 when others =>
-                    current_state <= current_state;
+                    current_state <= init;
             end case;
         end if;
     end process;
