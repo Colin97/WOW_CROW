@@ -13,12 +13,12 @@ entity render is
         rst, clk : in std_logic;
         state : in STATE;
         vga_done : in std_logic;
-        vga_addr : out std_logic_vector(19 downto 0)
+        vga_addr : out std_logic_vector(19 downto 0);
         sram_din : in std_logic_vector(31 downto 0);
         sran_dout : out std_logic_vector(31 downto 0);
         sram_we_n, sram_oe_n: out std_logic;
         sram_addr : out std_logic_vector(19 downto 0);
-        sram_done : in std_logic;
+        sram_done : in std_logic
     );
 end entity render;
 
@@ -53,18 +53,18 @@ architecture render_bhv of render is
 begin 
     img_render : image_render 
     port map (
-        image_id => image_id;
-        base_address => render_addr;
-        x => x;
-        y => y;
-        rst => image_render_rst;
-        clk => clk;
-        din => sram_din;
-        dout => sram_dout;
-        we_n => sram_we_n;
-        oe_n => sram_oe_n;
-        addr => sram_addr;
-        sram_done => sram_done;
-        done => render_done;
+        image_id => image_id,
+        base_address => render_addr,
+        x => x,
+        y => y,
+        rst => image_render_rst,
+        clk => clk,
+        din => sram_din,
+        dout => sram_dout,
+        we_n => sram_we_n,
+        oe_n => sram_oe_n,
+        addr => sram_addr,
+        sram_done => sram_done,
+        done => render_done
     );
 end architecture render_bhv;
