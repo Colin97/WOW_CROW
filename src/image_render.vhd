@@ -89,6 +89,8 @@ begin
                             addr <= image_address(image_id) + cnt / 2;
                         end if;
                     end if;
+                when s_done =>
+                    current_state <= s_done;
                 when s_others =>
                     current_state <= s_init;
             end case;
