@@ -15,7 +15,7 @@ entity render is
         vga_done : in std_logic;
         vga_addr : out std_logic_vector(19 downto 0);
         sram_din : in std_logic_vector(31 downto 0);
-        sran_dout : out std_logic_vector(31 downto 0);
+        sram_dout : out std_logic_vector(31 downto 0);
         sram_we_n, sram_oe_n: out std_logic;
         sram_addr : out std_logic_vector(19 downto 0);
         sram_done : in std_logic
