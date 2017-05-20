@@ -30,9 +30,9 @@ architecture image_render_bhv of image_render is
     signal current_state : state := s_init;
     signal data : std_logic_vector(15 downto 0);
 
-    shared variable row : integer range 0 to VGA_HEIGHT;
-    shared variable col : integer range 0 to VGA_WIDTH;
-    shared variable cnt : integer range 0 to 1048575;
+    shared variable row : integer range 0 to VGA_HEIGHT * 2;
+    shared variable col : integer range 0 to VGA_WIDTH * 2;
+    shared variable cnt : integer range 0 to 1024 * 1024 * 2 - 1;
     shared variable alpha : std_logic;
 begin
     render_req.DOUT <= x"0000" & data;
