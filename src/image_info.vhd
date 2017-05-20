@@ -30,4 +30,7 @@ package image_info is
     constant i_person_right_3 : integer := 16;
     constant i_bullet : integer := 17;
     constant i_start : integer := 18;
+    
+    constant graphics_ram_1 : integer := 0;
+    constant graphics_ram_2 : integer := 307200;
 end package image_info;
