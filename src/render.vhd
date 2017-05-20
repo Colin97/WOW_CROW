@@ -24,8 +24,8 @@ entity render is
 end entity render;
 
 architecture render_bhv of render is 
-    type state is (s_init, s_new_frame, s_render_background, s_render_player, s_render_crow, s_render_bullet, s_done);
-    signal current_state : state := s_init;
+    type state_t is (s_init, s_new_frame, s_render_background, s_render_player, s_render_crow, s_render_bullet, s_done);
+    signal current_state : state_t := s_init;
     signal render_addr : integer range 0 to 1048575;
     signal image_id : integer range 0 to 31;
     signal x : integer range 0 to VGA_WIDTH;
@@ -37,7 +37,7 @@ architecture render_bhv of render is
     signal player_frame : integer range 0 to 4 := 0;
     signal current_crow : integer range 0 to 4 := 0;
     signal current_bullet : integer range 0 to 8 := 0;
-    component freq_div is
+    component image_render is
         generic (
             VGA_WIDTH : integer := 640;
             VGA_HEIGHT : integer := 480
@@ -84,11 +84,12 @@ begin
                     current_state <= s_new_frame;
                     vga_ram <= not vga_ram;
                     background_frame <= not background_frame;
-                    player_frame <= player_frame + 1;
-                    if player_frame = 3 then
+                    if player_frame = 3 - 1 then
                         player_frame <= 0;
+                    else
+                        player_frame <= player_frame + 1;
                     end if;
-                    if vga_ram = 0 then
+                    if vga_ram = '0' then
                         vga_addr <= conv_std_logic_vector(i_display_ram_1, 20);
                         render_addr <= i_display_ram_2;
                     else 
@@ -111,28 +112,28 @@ begin
                     elsif render_done = '1' then
                         current_state <= s_render_player;
                         if state.player1.pos < 70 then
-                            if player_fram = 0 then
-                                image_id <= i_person_left1;
-                            elsif player_fram = 1 then
-                                image_id <= i_person_left2;
+                            if player_frame = 0 then
+                                image_id <= i_person_left_1;
+                            elsif player_frame = 1 then
+                                image_id <= i_person_left_2;
                             else 
-                                image_id <= i_person_left3;
+                                image_id <= i_person_left_3;
                             end if;
                         elsif state.player1.pos > 130 then
-                            if player_fram = 0 then
-                                image_id <= i_person_right1;
-                            elsif player_fram = 1 then
-                                image_id <= i_person_right2;
+                            if player_frame = 0 then
+                                image_id <= i_person_right_1;
+                            elsif player_frame = 1 then
+                                image_id <= i_person_right_2;
                             else 
-                                image_id <= i_person_right3;
+                                image_id <= i_person_right_3;
                             end if;
                         else 
-                            if player_fram = 0 then
-                                image_id <= i_person_middle1;
-                            elsif player_fram = 1 then
-                                image_id <= i_person_middle2;
+                            if player_frame = 0 then
+                                image_id <= i_person_middle_1;
+                            elsif player_frame = 1 then
+                                image_id <= i_person_middle_2;
                             else 
-                                image_id <= i_person_middle3;
+                                image_id <= i_person_middle_3;
                             end if;
                         end if;
                         x <= state.player1.pos;
@@ -161,43 +162,43 @@ begin
                             current_state <= s_render_bullet;
                             current_crow <= 0;
                             current_bullet <= 0;
-                            if state.crows(current_crow).bullets(current_bullets).in_screen = '1' then
+                            if state.crows(current_crow).bullets(current_bullet).in_screen = '1' then
                                 x <= state.crows(current_crow).pos;
-                                y <= state.crows(current_crow).bullets(current_bullets).height;
-                                image_id <= i_shit;
+                                y <= state.crows(current_crow).bullets(current_bullet).height;
+                                image_id <= i_bullet;
                                 image_render_rst <= '1';
                             end if;
                         else
                             if state.crows(current_crow).in_screen = '1' then
                                 x <= state.crows(current_crow).pos;
                                 y <= 50;
-                                image_id <= i_shit;
+                                image_id <= i_bullet;
                                 image_render_rst <= '1';
                             end if;                    
                         end if;
                     end if;
-                when s_render_shit => 
+                when s_render_bullet => 
                     if image_render_rst = '1' then
                         image_render_rst <= '0';
-                    elsif state.crows(current_crow).bullets(current_bullets).in_screen = '0' or render_done = '1' then
-                        current_shit <= current_shit + 1;
-                        if current_shit = 4 then
-                            current_shit <= 0;
+                    elsif state.crows(current_crow).bullets(current_bullet).in_screen = '0' or render_done = '1' then
+                        current_bullet <= current_bullet + 1;
+                        if current_bullet = 4 then
+                            current_bullet <= 0;
                             current_crow <= current_crow + 1;
                         end if;
                         if current_crow = 4 then
                             current_state <= s_done;
                         else
-                            if state.crows(current_crow).bullets(current_bullets).in_screen = '1' then
+                            if state.crows(current_crow).bullets(current_bullet).in_screen = '1' then
                                 x <= state.crows(current_crow).pos;
-                                y <= state.crows(current_crow).bullets(current_bullets).height;
-                                image_id <= i_shit;
+                                y <= state.crows(current_crow).bullets(current_bullet).height;
+                                image_id <= i_bullet;
                                 image_render_rst <= '1';
                             end if;                    
                         end if;
                     end if;
                 when s_done =>
-                    if vga_done then
+                    if vga_done = '1' then
                         current_state <= s_init;
                     end if;
             end case;
