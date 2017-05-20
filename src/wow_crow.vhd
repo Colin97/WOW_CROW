@@ -1,5 +1,6 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
+use work.signals.all;
 
 entity wow_crow is
     generic
@@ -22,17 +23,37 @@ entity wow_crow is
         -- UART
         RXD: in std_logic;
         DBG_STATE: out std_logic_vector(2 downto 0);
+        
+        -- SRAM
+        RAM_ADDR: out std_logic_vector(ADDR_WIDTH - 1 downto 0);
+        RAM_DQ: inout std_logic_vector(WORD_WIDTH - 1 downto 0);
+        RAM_WE_n: out std_logic;
+        RAM_OE_n: out std_logic;
+        
+        -- SD
+        SD_CS_n: out std_logic; -- SD_NCS, SD_DATA3_CD
+        SD_SCLK: out std_logic; -- SD_CLK
+        SD_MISO: in std_logic;  -- SD_DOUT, SD_DATA0_DO
+        SD_MOSI: out std_logic; -- SD_DIN, SD_CMD
 
         -- VGA
         VGA_HSYNC: out std_logic;
         VGA_VSYNC: out std_logic;
-        VGA_RED: out std_logic_vector(4 downto 0);
-        VGA_GREEN: out std_logic_vector(5 downto 0);
-        VGA_BLUE: out std_logic_vector(4 downto 0)
+        VGA_RED: out std_logic_vector(2 downto 0);
+        VGA_GREEN: out std_logic_vector(2 downto 0);
+        VGA_BLUE: out std_logic_vector(2 downto 0)
     );
 end;
 
 architecture behavioral of wow_crow is
+    component pll IS
+        PORT
+        (
+            inclk0		: IN STD_LOGIC  := '0';
+            c0		: OUT STD_LOGIC 
+        );
+    END component;
+
     component freq_div is
         generic
         (
@@ -61,7 +82,7 @@ architecture behavioral of wow_crow is
     component uart is
     generic
     (
-        CLK_FREQ: integer := SYS_CLK;
+        CLK_FREQ: integer := 25000000;
         BAUD: integer := 115200
     );
     port
@@ -80,7 +101,7 @@ architecture behavioral of wow_crow is
     component imu is
         generic
         (
-            CLK_FREQ: integer := SYS_CLK;
+            CLK_FREQ: integer := 25000000;
             TIMEOUT_MS: integer := 20
         );
         port
@@ -107,6 +128,54 @@ architecture behavioral of wow_crow is
         );
     end component;
 
+    component sram_controller is
+        port
+        (
+            CLK: in std_logic;
+            RST: in std_logic;
+            
+            -- connect to sram
+            RAM_ADDR: out std_logic_vector(ADDR_WIDTH - 1 downto 0);
+            RAM_DQ: inout std_logic_vector(WORD_WIDTH - 1 downto 0);
+            RAM_WE_n: out std_logic;
+            RAM_OE_n: out std_logic;
+            
+            -- internal wires
+            BOOTLOADER_REQ: in RAM_REQ;
+            BOOTLOADER_RES: out RAM_RES;
+            VGA_REQ: in RAM_REQ;
+            VGA_RES: out RAM_RES;
+            RENDERER_REQ: in RAM_REQ;
+            RENDERER_RES: out RAM_RES
+        );
+    end component;
+    
+    component bootloader is
+        generic
+        (
+            WORD_WIDTH: integer := 32;
+            LOG2_WORD_WIDTH_DIV_8: integer := 2; -- log2(16 / 8)
+            RAM_SIZE: integer := 1024 * 1024 * 32 / 8
+        );
+        port
+        (
+            CLK: in std_logic;
+            RST: in std_logic;
+
+            BL_REQ: out RAM_REQ;
+            BL_RES: in RAM_RES;
+            
+            SD_CS_n: out std_logic; -- SD_NCS, SD_DATA3_CD
+            SD_SCLK: out std_logic; -- SD_CLK
+            SD_MISO: in std_logic;  -- SD_DOUT, SD_DATA0_DO
+            SD_MOSI: out std_logic; -- SD_DIN, SD_CMD
+            
+            DONE: out std_logic;
+            REJECTED: out std_logic;
+            DBG: out std_logic_vector(3 downto 0)
+        );
+    end component;
+    
     component vga_controller is
         generic
         (
@@ -129,43 +198,24 @@ architecture behavioral of wow_crow is
             RST: in std_logic;
 
             -- Graphics RAM
-            -- data should be ready at next clock positive edge.
-            REN: out std_logic;
-            X_ADDR: out std_logic_vector(15 downto 0);
-            Y_ADDR: out std_logic_vector(15 downto 0);
-            RED_DA: in std_logic_vector(4 downto 0);
-            GREEN_DA: in std_logic_vector(5 downto 0);
-            BLUE_DA: in std_logic_vector(4 downto 0);
+            -- data should be ready before next clock positive edge.
+            BASE_ADDR: std_logic_vector(ADDR_WIDTH - 1 downto 0);
+            VGA_REQ: out RAM_REQ;
+            VGA_RES: in RAM_RES;
 
             -- outputs
             HSYNC: out std_logic;
             VSYNC: out std_logic;
-            RED: out std_logic_vector(4 downto 0);
-            GREEN: out std_logic_vector(5 downto 0);
-            BLUE: out std_logic_vector(4 downto 0)
+            RED: out std_logic_vector(2 downto 0);
+            GREEN: out std_logic_vector(2 downto 0);
+            BLUE: out std_logic_vector(2 downto 0);
+            DONE: out std_logic
         );
     end component;
-    
-    component renderer is
-        port
-        (
-            CLK: in std_logic;
-            RST: in std_logic;
-            X: in std_logic_vector(15 downto 0);
-            Y: in std_logic_vector(15 downto 0);
 
-            RED_DA: out std_logic_vector(4 downto 0);
-            GREEN_DA: out std_logic_vector(5 downto 0);
-            BLUE_DA: out std_logic_vector(4 downto 0);
-
-            Ax: in std_logic_vector(15 downto 0);
-            Ay: in std_logic_vector(15 downto 0)
-        );
-    end component;
-    
     signal RST: std_logic;
 
-    signal CLK_25M, CLK_500: std_logic;
+    signal CLK_150M, CLK_25M, CLK_75M, CLK_500: std_logic;
 
     signal DS_DA: std_logic_vector(23 downto 0);
     signal DS_DP: std_logic;
@@ -175,26 +225,54 @@ architecture behavioral of wow_crow is
     signal UART_DATA: std_logic_vector(7 downto 0);
     signal UART_DATA_READY: std_logic;
 
-    signal VGA_X_ADDR: std_logic_vector(15 downto 0);
-    signal VGA_Y_ADDR: std_logic_vector(15 downto 0);
-    signal VGA_RED_DA: std_logic_vector(4 downto 0);
-    signal VGA_GREEN_DA: std_logic_vector(5 downto 0);
-    signal VGA_BLUE_DA: std_logic_vector(4 downto 0);
-    
+    signal BOOTLOADER_REQ: RAM_REQ;
+    signal BOOTLOADER_RES: RAM_RES;
+    signal VGA_REQ: RAM_REQ;
+    signal VGA_RES: RAM_RES;
+    signal RENDERER_REQ: RAM_REQ;
+    signal RENDERER_RES: RAM_RES;
+
     signal IMU_Ax, IMU_Ay, IMU_Az: std_logic_vector(15 downto 0);
+    signal bootloader_done: std_logic;
+    signal internal_rst: std_logic;
+    
+    signal vga_base: std_logic_vector(ADDR_WIDTH - 1 downto 0);
+    signal vga_done: std_logic;
+    signal bldbg: std_logic_vector(3 downto 0);
+    signal addr_buff: std_logic_vector(19 downto 0);
 begin
     RST <= not RST_n;
+    internal_rst <= RST or not bootloader_done;
+    
+    pll_inst: pll
+    port map
+    (
+        inclk0 => CLK,
+        c0 => CLK_150M
+    );
     
     freq_div_25m_inst: freq_div
     generic map
     (
-        DIV => SYS_CLK / 25000000
+        DIV => 150000000 / 25000000
     )
     port map
     (
-        CLK => CLK,
+        CLK => CLK_150M,
         RST => RST,
         O => CLK_25M
+    );
+    
+    freq_div_75m_inst: freq_div
+    generic map
+    (
+        DIV => 150000000 / 75000000
+    )
+    port map
+    (
+        CLK => CLK_150M,
+        RST => RST,
+        O => CLK_75M
     );
 
     freq_div_500_inst: freq_div
@@ -228,7 +306,7 @@ begin
     uart_inst: uart
     port map
     (
-        CLK => CLK,
+        CLK => CLK_25M,
         RST => RST,
         RXD => RXD,
         DATA_READ => UART_DATA,
@@ -240,10 +318,10 @@ begin
     process(RST, UART_DATA_READY)
     begin
         if RST = '1' then
-            DS_DA(23 downto 16) <= x"00";
+            -- DS_DA(23 downto 16) <= x"00";
         else
             if rising_edge(UART_DATA_READY) then
-                DS_DA(23 downto 16) <= UART_DATA;
+                -- DS_DA(23 downto 16) <= UART_DATA;
             end if;
         end if;
     end process;
@@ -251,7 +329,7 @@ begin
     imu_inst: imu
     port map
     (
-        CLK => CLK,
+        CLK => CLK_25M,
         RST => RST,
         DATA => UART_DATA,
         READY => UART_DATA_READY,
@@ -261,37 +339,65 @@ begin
         Ay => IMU_Ay,
         Az => IMU_Az
     );
-    DS_DA(15 downto 0) <= IMU_Az;
+    
+    -- DS_DA(15 downto 0) <= IMU_Az;
+    DS_DA(19 downto 0) <= addr_buff;
+    DS_DA(23 downto 20) <= bldbg;
+    RAM_ADDR <= addr_buff;
 
-    vga_controller_inst: vga_controller
+    sram_controller_inst: sram_controller
     port map
     (
-        VGA_CLK => CLK_25M,
-        RST => RST,
-        X_ADDR => VGA_X_ADDR,
-        Y_ADDR => VGA_Y_ADDR,
-        RED_DA => VGA_RED_DA,
-        GREEN_DA => VGA_GREEN_DA,
-        BLUE_DA => VGA_BLUE_DA,
-        HSYNC => VGA_HSYNC,
-        VSYNC => VGA_VSYNC,
-        RED => VGA_RED,
-        GREEN => VGA_GREEN,
-        BLUE => VGA_BLUE
+        CLK => CLK_75M,
+        RST => internal_rst,
+        
+        RAM_ADDR => addr_buff,
+        RAM_DQ => RAM_DQ,
+        RAM_WE_n => RAM_WE_n,
+        RAM_OE_n => RAM_OE_n,
+        
+        BOOTLOADER_REQ => BOOTLOADER_REQ,
+        BOOTLOADER_RES => BOOTLOADER_RES,
+        VGA_REQ => VGA_REQ,
+        VGA_RES => VGA_RES,
+        RENDERER_REQ => RENDERER_REQ,
+        RENDERER_RES => RENDERER_RES
     );
     
-    renderer_inst: renderer
+    bootloader_inst: bootloader
     port map
     (
         CLK => CLK_25M,
         RST => RST,
-        X => VGA_X_ADDR,
-        Y => VGA_Y_ADDR,
-        RED_DA => VGA_RED_DA,
-        GREEN_DA => VGA_GREEN_DA,
-        BLUE_DA => VGA_BLUE_DA,
         
-        Ax => IMU_Ax,
-        Ay => IMU_Ay
+        BL_REQ => BOOTLOADER_REQ,
+        BL_RES => BOOTLOADER_RES,
+        
+        SD_CS_n => SD_CS_n,
+        SD_SCLK => SD_SCLK,
+        SD_MISO => SD_MISO,
+        SD_MOSI => SD_MOSI,
+        
+        DONE => bootloader_done,
+        DBG => bldbg
+    );
+    
+    vga_base <= x"00000"; -- TODO
+    vga_controller_inst: vga_controller
+    port map
+    (
+        VGA_CLK => CLK_25M,
+        RST => internal_rst,
+        
+        BASE_ADDR => vga_base,
+        VGA_REQ => VGA_REQ,
+        VGA_RES => VGA_RES,
+        
+        HSYNC => VGA_HSYNC,
+        VSYNC => VGA_VSYNC,
+        RED => VGA_RED,
+        GREEN => VGA_GREEN,
+        BLUE => VGA_BLUE,
+        DONE => vga_done
     );
 end;

@@ -14,7 +14,7 @@ def preview(img):
                 img.putpixel((x, y), (0, 0, 0, 0))
     img.show()
 
-def get_bin(img):
+def get_bin(img, dword=False):
     buff = b''
     w, h = img.size
     for y in range(h):
@@ -27,7 +27,12 @@ def get_bin(img):
             else:
                 word = 0
             buff += struct.pack('<H', word)
-    assert(len(buff) == 2 * w * h)
+            if dword:
+                buff += struct.pack('<H', 0)
+    if not dword:
+        assert(len(buff) == 2 * w * h)
+    else:
+        assert(len(buff) == 4 * w * h)
     if len(buff) % 4 != 0:
         assert(len(buff) % 4 == 2)
         buff += struct.pack('<H', 0)
@@ -48,7 +53,9 @@ buff = b''
 with open('mmap.csv', 'w') as f:
     f.write('filename,width,height,length(bytes),address(bytes),length(dwords),address(dwords)\n')
     print('Preallocating graphics memory')
-    bin = b'\0' * SCREEN_WIDTH * SCREEN_HEIGHT * 4
+    img = Image.open('default.png')
+    bin = get_bin(img, True)
+    assert(len(bin) == SCREEN_WIDTH * SCREEN_HEIGHT * 4)
     f.write('{},{},{},{},{},{},{}\n'.format('buffer1', SCREEN_WIDTH, SCREEN_HEIGHT, len(bin), len(buff),
                                             len(bin) // 4, len(buff) // 4))
     buff += bin
