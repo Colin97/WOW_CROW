@@ -39,7 +39,7 @@
 
 set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name DEVICE EP4CE6F17C8
-set_global_assignment -name TOP_LEVEL_ENTITY wow_crow
+set_global_assignment -name TOP_LEVEL_ENTITY image_render
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 16.1.2
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "00:20:16  APRIL 22, 2017"
 set_global_assignment -name LAST_QUARTUS_VERSION "16.1.2 Lite Edition"

@@ -28,6 +28,6 @@ package image_info is
     constant i_person_right_1 : integer := 14;
     constant i_person_right_2 : integer := 15;
     constant i_person_right_3 : integer := 16;
-    constant i_bullet : integer := 17;    
+    constant i_bullet : integer := 17;
     constant i_start : integer := 18;
 end package image_info;
