@@ -24,7 +24,7 @@ package image_info is
     constant i_person_left_3 : integer := 10;
     constant i_person_middle_1 : integer := 11;
     constant i_person_middle_2 : integer := 12;
-    constant i_person_midlle_3 : integer := 13;
+    constant i_person_middle_3 : integer := 13;
     constant i_person_right_1 : integer := 14;
     constant i_person_right_2 : integer := 15;
     constant i_person_right_3 : integer := 16;
