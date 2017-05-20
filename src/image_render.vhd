@@ -1,5 +1,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
+use IEEE.std_logic_unsigned.all;
+use IEEE.std_logic_arith.all;
 use IEEE.numeric_std.all;
 use work.image_info.all;
 
@@ -16,6 +18,7 @@ entity image_render is
         rst, clk : in std_logic;
         din : in std_logic_vector(31 downto 0);
         dout : out std_logic_vector(31 downto 0);
+        dout_en : out std_logic;
         we_n, oe_n: out std_logic;
         addr : out std_logic_vector(19 downto 0);
         sram_done : in std_logic;
@@ -26,14 +29,14 @@ end entity image_render;
 architecture image_render_bhv of image_render is 
     type state is (s_init, s_read, s_write, s_done);
     signal current_state : state := s_init;
-    signal data : std_logic_vector(31 downto 0);
-    signal dout_en : std_logic;
-    shared variable row : integer;
-    shared variable col : integer;
-    shared variable cnt : integer;
+    signal data : std_logic_vector(15 downto 0);
+    shared variable row : integer range 0 to VGA_HEIGHT;
+    shared variable col : integer range 0 to VGA_WIDTH;
+    shared variable cnt : integer range 0 to 1048575;
     shared variable alpha : std_logic;
-begin 
-    dout <= data when dout_en = '1' else "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
+begin
+    dout <= x"0000" & data;
+
     main : process(clk, rst)
     begin
         if rst = '1' then
@@ -45,7 +48,7 @@ begin
             oe_n <= '0';
             we_n <= '1';
             dout_en <= '0';
-            addr <= image_address(image_id) + cnt / 2;
+            addr <= conv_std_logic_vector(image_address(image_id) + cnt / 2, addr'length);
         elsif rising_edge(clk) then
             case current_state is
                 when s_read =>
@@ -59,14 +62,14 @@ begin
                             current_state <= s_write;
                         else
                             if cnt MOD 2 = 0 then
-                                data(15 downto 0) <= din(15 downto 0);
+                                data <= din(15 downto 0);
                             else
-                                data(15 downto 0) <= din(31 downto 16);
+                                data <= din(31 downto 16);
                             end if;
                             current_state <= s_write;
                             oe_n <= '1';
                             we_n <= '0';
-                            addr <= base_address + (row + x) * VGA_WIDTH + (col + y);
+                            addr <= conv_std_logic_vector(base_address + (row + x) * VGA_WIDTH + (col + y), addr'length);
                             dout_en <= '1';
                         end if;
                     end if;
@@ -86,12 +89,12 @@ begin
                             oe_n <= '0';
                             we_n <= '1';
                             dout_en <= '0';
-                            addr <= image_address(image_id) + cnt / 2;
+                            addr <= conv_std_logic_vector(image_address(image_id) + cnt / 2, addr'length);
                         end if;
                     end if;
                 when s_done =>
                     current_state <= s_done;
-                when s_others =>
+                when others =>
                     current_state <= s_init;
             end case;
         end if;
