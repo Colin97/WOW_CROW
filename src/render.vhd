@@ -4,6 +4,7 @@ use IEEE.numeric_std.all;
 use IEEE.std_logic_arith.all;
 use work.state.all;
 use work.image_info.all;
+use work.signals.all;
 
 entity render is 
     generic (
@@ -15,11 +16,8 @@ entity render is
         state : in STATE;
         vga_done : in std_logic;
         vga_addr : out std_logic_vector(19 downto 0);
-        sram_din : in std_logic_vector(31 downto 0);
-        sram_dout : out std_logic_vector(31 downto 0);
-        sram_we_n, sram_oe_n: out std_logic;
-        sram_addr : out std_logic_vector(19 downto 0);
-        sram_done : in std_logic
+        render_req: out RAM_REQ;
+        render_res: in RAM_RES
     );
 end entity render;
 
@@ -50,11 +48,9 @@ architecture render_bhv of render is
             x : in integer range 0 to VGA_WIDTH;
             y : in integer range 0 to VGA_HEIGHT;
             rst, clk : in std_logic;
-            din : in std_logic_vector(31 downto 0);
-            dout : out std_logic_vector(31 downto 0);
-            we_n, oe_n: out std_logic;
-            addr : out std_logic_vector(19 downto 0);
-            sram_done : in std_logic;
+            
+            render_req: out RAM_REQ;
+            render_res: in RAM_RES;
             done : out std_logic
         );
     end component;
@@ -67,12 +63,8 @@ begin
         y => y,
         rst => image_render_rst,
         clk => clk,
-        din => sram_din,
-        dout => sram_dout,
-        we_n => sram_we_n,
-        oe_n => sram_oe_n,
-        addr => sram_addr,
-        sram_done => sram_done,
+        render_req => render_req,
+        render_res => render_res,
         done => render_done
     );
 
@@ -83,6 +75,8 @@ begin
             vga_ram <= '0';
             background_frame <= '0';
             player_frame <= 0;
+            current_crow <= 0;
+            current_bullet <= 0;
         elsif rising_edge(clk) then
             case current_state is
                 when s_init =>
