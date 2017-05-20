@@ -56,29 +56,19 @@ entity game_logic is
     generic
     (
         MAX_LIFE: integer := 5
-        MAX_CROW: integer := 8
+        MAX_CROW: integer := 4
         MAX_BULLET_PER_CROW: integer := 4
     );
     port
     (
-    	NEW_GAME: in std_logic; -- 这个信号实际上是RST
+    	RST: in std_logic; -- 这个信号实际上是RST
     	CLK: in std_logic;
     	RANDOM_SEED: in std_logic_vector(15 downto 0);
 
-    	ROLL: in std_logic_vector(15 downto 0);
-        PITCH: in std_logic_vector(15 downto 0);
+    	POS: in std_logic_vector(15 downto 0);
+        V: in std_logic_vector(15 downto 0);
     	
-        -- TODO: typedef
-    	GAME_STATE: out std_logic_vector(1 downto 0); -- 00 未开始 01进行中 10已结束 -- TODO: 考虑使用枚举类型
-        -- TODO: refactor
-    	PLAYER1_X: out std_logic_vector(9 downto 0);
-    	PLAYER1_LIFE: out std_logic_vector(2 downto 0);
-    	PLAYER1_SCORE: out std_logic_vector(19 downto 0);
-    	CROW_IN_SCREEN: out std_logic_vector(7 downto 0); -- 1 bit per crow
-    	CROW_ROW: out std_logic_vector(15 downto 0); -- 2 bit per crow  00,10: left->right  01,11: right->left
-    	CROW_POS: out std_logic_vector(79 downto 0); -- 10 bit per crow
-    	HAS_BULLET: out std_logic_vector(31 downto 0);
-    	BULLET_HEIGHT: out std_logic_vector(319 downto 0); -- 10 bit per sh*t
+        game_state : out STATE;
     );
 end;
 
