@@ -12,23 +12,18 @@ entity wow_crow is
         CLK: in std_logic; 
         RST_n: in std_logic;
         
-        -- LED
-        LED: out STD_LOGIC_VECTOR(3 downto 0);
-        
-        -- digital tube
-        DS_DP_n: out std_logic;
-        DS_n: out std_logic_vector(6 downto 0); -- 6-0: a-g
-        DS_EN_n: out std_logic_vector(5 downto 0);
-        
-        -- UART
-        RXD: in std_logic;
-        DBG_STATE: out std_logic_vector(2 downto 0);
+        -- debug signals
+        DBG: out std_logic_vector(55 downto 0);
+		  
+		  -- UART
+		  RXD: in std_logic;
         
         -- SRAM
         RAM_ADDR: out std_logic_vector(ADDR_WIDTH - 1 downto 0);
         RAM_DQ: inout std_logic_vector(WORD_WIDTH - 1 downto 0);
         RAM_WE_n: out std_logic;
         RAM_OE_n: out std_logic;
+		  RAM_CS_n: out std_logic;
         
         -- SD
         SD_CS_n: out std_logic; -- SD_NCS, SD_DATA3_CD
@@ -243,6 +238,7 @@ architecture behavioral of wow_crow is
 begin
     RST <= not RST_n;
     internal_rst <= RST or not bootloader_done;
+	 RAM_CS_n <= '0';
     
     pll_inst: pll
     port map
@@ -287,22 +283,7 @@ begin
         O => CLK_500
     );
 
-    DS_DP_n <= not DS_DP;
-    DS_n <= not DS;
-    DS_EN_n <= not DS_EN;
-
-    digital_tube_inst: digital_tube
-    port map
-    (
-        CLK => CLK_500,
-        RST => RST,
-        DA => DS_DA,
-        DS_DP => DS_DP,
-        DS => DS,
-        DS_EN => DS_EN
-    );
-    
-    LED(0) <= RXD;
+    DBG(0) <= RXD;
     uart_inst: uart
     port map
     (
@@ -311,8 +292,7 @@ begin
         RXD => RXD,
         DATA_READ => UART_DATA,
         DATA_READY => UART_DATA_READY,
-        DATA_ERROR => LED(1),
-        DBG_STATE => DBG_STATE
+        DATA_ERROR => DBG(1)
     );
     
     process(RST, UART_DATA_READY)
@@ -333,16 +313,17 @@ begin
         RST => RST,
         DATA => UART_DATA,
         READY => UART_DATA_READY,
-        ERROR => LED(2),
+        ERROR => DBG(2),
         
         Ax => IMU_Ax,
         Ay => IMU_Ay,
         YAW => IMU_Az
     );
     
-    DS_DA(15 downto 0) <= IMU_Az;
-    DS_DA(19 downto 16) <= addr_buff(19 downto 16);
-    DS_DA(23 downto 20) <= bldbg;
+	 DBG(3) <= RST_n;
+    DBG(11 downto 8) <= addr_buff(19 downto 16);
+    DBG(15 downto 12) <= bldbg;
+	 DBG(47 downto 16) <= RAM_DQ;
     RAM_ADDR <= addr_buff;
 
     sram_controller_inst: sram_controller
