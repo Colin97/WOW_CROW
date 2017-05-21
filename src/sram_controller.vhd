@@ -30,19 +30,21 @@ architecture behavioral of sram_controller is
     type state_t is (st_init, st_vga, st_renderer1, st_renderer2);
     
     signal den: std_logic;
-    signal dout: std_logic_vector(WORD_WIDTH - 1 downto 0);
+    signal dout, vga_data: std_logic_vector(WORD_WIDTH - 1 downto 0);
     signal current_state: state_t;
 begin
     process(CLK, RST)
     begin
         if RST = '1' then
             current_state <= st_init;
+            vga_data <= x"00000000";
         else
             if rising_edge(CLK) then
                 case current_state is
                     when st_init =>
                         current_state <= st_vga;
                     when st_vga =>
+                        vga_data <= RAM_DQ; -- keep data for vga
                         current_state <= st_renderer1;
                     when st_renderer1 =>
                         current_state <= st_renderer2;
@@ -55,13 +57,13 @@ begin
         end if;
     end process;
     
+    VGA_RES.DIN <= RAM_DQ when current_state = st_vga else vga_data;
     BOOTLOADER_RES.DIN <= RAM_DQ;
-    VGA_RES.DIN <= RAM_DQ;
     RENDERER_RES.DIN <= RAM_DQ;
     RAM_DQ <= dout when den = '1' else "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
 
     -- dispatcher
-    process(current_state)
+    process(current_state, BOOTLOADER_REQ, VGA_REQ, RENDERER_REQ)
     begin
         case current_state is
             when st_init =>

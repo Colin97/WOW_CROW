@@ -4,6 +4,7 @@ use IEEE.std_logic_unsigned.all;
 use IEEE.std_logic_arith.all;
 use IEEE.numeric_std.all;
 use work.image_info.all;
+use work.signals.all;
 
 entity image_render is 
     generic (
@@ -16,65 +17,77 @@ entity image_render is
         x : in integer range 0 to VGA_WIDTH;
         y : in integer range 0 to VGA_HEIGHT;
         rst, clk : in std_logic;
-        din : in std_logic_vector(31 downto 0);
-        dout : out std_logic_vector(31 downto 0);
-        dout_en : out std_logic;
-        we_n, oe_n: out std_logic;
-        addr : out std_logic_vector(19 downto 0);
-        sram_done : in std_logic;
+        
+        render_req: out RAM_REQ;
+        render_res: in RAM_RES;
         done : out std_logic
     );
 end entity image_render;
 
 architecture image_render_bhv of image_render is 
     type state is (s_init, s_read, s_write, s_done);
+
     signal current_state : state := s_init;
     signal data : std_logic_vector(15 downto 0);
-    shared variable row : integer range 0 to VGA_HEIGHT;
-    shared variable col : integer range 0 to VGA_WIDTH;
-    shared variable cnt : integer range 0 to 1048575;
+
+    shared variable row : integer range 0 to VGA_HEIGHT * 2;
+    shared variable col : integer range 0 to VGA_WIDTH * 2;
+    shared variable cnt : integer range 0 to 1024 * 1024 * 2 - 1;
     shared variable alpha : std_logic;
 begin
-    dout <= x"0000" & data;
+    render_req.DOUT <= x"0000" & data;
+    done <= '1' when current_state = s_done else '0';
 
     main : process(clk, rst)
     begin
         if rst = '1' then
-            current_state <= s_read;
+            current_state <= s_init;
             row := 0;
             col := 0;
             cnt := 0;
-            done <= '0';
-            oe_n <= '0';
-            we_n <= '1';
-            dout_en <= '0';
-            addr <= conv_std_logic_vector(image_address(image_id) + cnt / 2, addr'length);
+            render_req.OE_n <= '0';
+            render_req.WE_n <= '1';
+            render_req.DEN <= '0';
+            render_req.ADDR <= conv_std_logic_vector(0, render_req.ADDR'length);
         elsif rising_edge(clk) then
             case current_state is
+                when s_init =>
+                    current_state <= s_read;
+                    row := 0;
+                    col := 0;
+                    cnt := 0;
+                    render_req.OE_n <= '0';
+                    render_req.WE_n <= '1';
+                    render_req.DEN <= '0';
+                    render_req.ADDR <= conv_std_logic_vector(image_address(image_id) + cnt / 2,
+                                                             render_req.ADDR'length);
                 when s_read =>
-                    if sram_done = '1' then
-                        if cnt MOD 2 = 0 then
-                            alpha := din(0);
+                    if render_res.DONE = '1' then
+                        if cnt mod 2 = 0 then
+                            alpha := render_res.DIN(0);
                         else
-                            alpha := din(16);
+                            alpha := render_res.DIN(16);
                         end if;
-                        if (row + x) >= VGA_HEIGHT or (col + y) >= VGA_WIDTH or alpha = '0' then 
+                        if (row + y) >= VGA_HEIGHT or (col + x) >= VGA_WIDTH or alpha = '0' then 
                             current_state <= s_write;
                         else
-                            if cnt MOD 2 = 0 then
-                                data <= din(15 downto 0);
+                            if cnt mod 2 = 0 then
+                                data <= render_res.DIN(15 downto 0);
                             else
-                                data <= din(31 downto 16);
+                                data <= render_res.DIN(31 downto 16);
                             end if;
                             current_state <= s_write;
-                            oe_n <= '1';
-                            we_n <= '0';
-                            addr <= conv_std_logic_vector(base_address + (row + x) * VGA_WIDTH + (col + y), addr'length);
-                            dout_en <= '1';
+                            render_req.OE_n <= '1';
+                            render_req.WE_n <= '0';
+                            render_req.DEN <= '1';
+                            render_req.ADDR <=
+                                conv_std_logic_vector(base_address +
+                                                      (row + y) * VGA_WIDTH +
+                                                      (col + x), render_req.ADDR'length);
                         end if;
                     end if;
                 when s_write =>
-                    if sram_done = '1' then
+                    if render_res.DONE = '1' then
                         col := col + 1;
                         cnt := cnt + 1;
                         if col = image_width(image_id) then
@@ -83,13 +96,14 @@ begin
                         end if;
                         if row = image_height(image_id) then
                             current_state <= s_done;
-                            done <= '1';
                         else
                             current_state <= s_read;
-                            oe_n <= '0';
-                            we_n <= '1';
-                            dout_en <= '0';
-                            addr <= conv_std_logic_vector(image_address(image_id) + cnt / 2, addr'length);
+                            render_req.OE_n <= '0';
+                            render_req.WE_n <= '1';
+                            render_req.DEN <= '0';
+                            render_req.ADDR <=
+                                conv_std_logic_vector(image_address(image_id) + cnt / 2,
+                                                      render_req.ADDR'length);
                         end if;
                     end if;
                 when s_done =>

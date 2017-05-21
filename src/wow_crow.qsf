@@ -39,7 +39,7 @@
 
 set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name DEVICE EP4CE6F17C8
-set_global_assignment -name TOP_LEVEL_ENTITY render
+set_global_assignment -name TOP_LEVEL_ENTITY wow_crow
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 16.1.2
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "00:20:16  APRIL 22, 2017"
 set_global_assignment -name LAST_QUARTUS_VERSION "16.1.2 Lite Edition"
@@ -73,7 +73,7 @@ set_location_assignment PIN_N15 -to DS_n[0]
 set_location_assignment PIN_N13 -to RST_n
 set_global_assignment -name VHDL_FILE uart.vhd
 set_location_assignment PIN_N2 -to RXD
-set_location_assignment PIN_P2 -to DBG_STATE[2]
+set_location_assignment PIN_P1 -to DBG_STATE[2]
 set_location_assignment PIN_P8 -to DBG_STATE[1]
 set_location_assignment PIN_L9 -to DBG_STATE[0]
 set_location_assignment PIN_D9 -to LED[3]
@@ -82,23 +82,16 @@ set_location_assignment PIN_F9 -to LED[1]
 set_location_assignment PIN_E10 -to LED[0]
 set_global_assignment -name VHDL_FILE vga_controller.vhd
 set_global_assignment -name VHDL_FILE renderer.vhd
-set_location_assignment PIN_F6 -to VGA_BLUE[4]
-set_location_assignment PIN_E5 -to VGA_BLUE[3]
-set_location_assignment PIN_D3 -to VGA_BLUE[2]
-set_location_assignment PIN_D4 -to VGA_BLUE[1]
-set_location_assignment PIN_C3 -to VGA_BLUE[0]
-set_location_assignment PIN_J6 -to VGA_GREEN[5]
-set_location_assignment PIN_L8 -to VGA_GREEN[4]
-set_location_assignment PIN_K8 -to VGA_GREEN[3]
-set_location_assignment PIN_F7 -to VGA_GREEN[2]
-set_location_assignment PIN_G5 -to VGA_GREEN[1]
-set_location_assignment PIN_F5 -to VGA_GREEN[0]
+set_location_assignment PIN_F6 -to VGA_BLUE[2]
+set_location_assignment PIN_E5 -to VGA_BLUE[1]
+set_location_assignment PIN_D3 -to VGA_BLUE[0]
+set_location_assignment PIN_J6 -to VGA_GREEN[2]
+set_location_assignment PIN_L8 -to VGA_GREEN[1]
+set_location_assignment PIN_K8 -to VGA_GREEN[0]
 set_location_assignment PIN_L6 -to VGA_HSYNC
-set_location_assignment PIN_L4 -to VGA_RED[4]
-set_location_assignment PIN_L3 -to VGA_RED[3]
-set_location_assignment PIN_L7 -to VGA_RED[2]
+set_location_assignment PIN_L3 -to VGA_RED[2]
 set_location_assignment PIN_K5 -to VGA_RED[1]
-set_location_assignment PIN_K6 -to VGA_RED[0]
+set_location_assignment PIN_L7 -to VGA_RED[0]
 set_location_assignment PIN_N3 -to VGA_VSYNC
 set_global_assignment -name VHDL_FILE imu.vhd
 set_global_assignment -name VHDL_FILE image_info.vhd
@@ -107,7 +100,51 @@ set_global_assignment -name VHDL_FILE state.vhd
 set_global_assignment -name VHDL_FILE signals.vhd
 set_global_assignment -name VHDL_FILE sram_controller.vhd
 set_global_assignment -name VHDL_FILE render.vhd
+set_global_assignment -name VHDL_FILE bootloader.vhd
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name QIP_FILE pll.qip
+set_location_assignment PIN_C2 -to RAM_ADDR[19]
+set_location_assignment PIN_A2 -to RAM_ADDR[18]
+set_location_assignment PIN_A3 -to RAM_ADDR[17]
+set_location_assignment PIN_A4 -to RAM_ADDR[16]
+set_location_assignment PIN_A5 -to RAM_ADDR[15]
+set_location_assignment PIN_A6 -to RAM_ADDR[14]
+set_location_assignment PIN_A7 -to RAM_ADDR[13]
+set_location_assignment PIN_A8 -to RAM_ADDR[12]
+set_location_assignment PIN_A9 -to RAM_ADDR[11]
+set_location_assignment PIN_A10 -to RAM_ADDR[10]
+set_location_assignment PIN_B1 -to RAM_ADDR[9]
+set_location_assignment PIN_B3 -to RAM_ADDR[8]
+set_location_assignment PIN_B4 -to RAM_ADDR[7]
+set_location_assignment PIN_B5 -to RAM_ADDR[6]
+set_location_assignment PIN_B6 -to RAM_ADDR[5]
+set_location_assignment PIN_B7 -to RAM_ADDR[4]
+set_location_assignment PIN_B8 -to RAM_ADDR[3]
+set_location_assignment PIN_B9 -to RAM_ADDR[2]
+set_location_assignment PIN_B10 -to RAM_ADDR[1]
+set_location_assignment PIN_B11 -to RAM_ADDR[0]
+set_location_assignment PIN_R13 -to RAM_DQ[15]
+set_location_assignment PIN_R12 -to RAM_DQ[14]
+set_location_assignment PIN_R11 -to RAM_DQ[13]
+set_location_assignment PIN_R10 -to RAM_DQ[12]
+set_location_assignment PIN_R9 -to RAM_DQ[11]
+set_location_assignment PIN_R8 -to RAM_DQ[10]
+set_location_assignment PIN_R7 -to RAM_DQ[9]
+set_location_assignment PIN_R6 -to RAM_DQ[8]
+set_location_assignment PIN_T7 -to RAM_DQ[7]
+set_location_assignment PIN_T8 -to RAM_DQ[6]
+set_location_assignment PIN_T9 -to RAM_DQ[5]
+set_location_assignment PIN_T10 -to RAM_DQ[4]
+set_location_assignment PIN_T11 -to RAM_DQ[3]
+set_location_assignment PIN_T12 -to RAM_DQ[2]
+set_location_assignment PIN_T13 -to RAM_DQ[1]
+set_location_assignment PIN_T14 -to RAM_DQ[0]
+set_location_assignment PIN_R1 -to RAM_OE_n
+set_location_assignment PIN_P2 -to RAM_WE_n
+set_location_assignment PIN_D11 -to SD_CS_n
+set_location_assignment PIN_E15 -to SD_MISO
+set_location_assignment PIN_F10 -to SD_MOSI
+set_location_assignment PIN_D12 -to SD_SCLK
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

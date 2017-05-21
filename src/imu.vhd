@@ -6,7 +6,7 @@ use IEEE.std_logic_unsigned.all;
 entity imu is
     generic
     (
-        CLK_FREQ: integer := 50000000;
+        CLK_FREQ: integer := 25000000;
         TIMEOUT_MS: integer := 20
     );
     port

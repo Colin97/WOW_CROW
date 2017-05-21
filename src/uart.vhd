@@ -4,7 +4,7 @@ use IEEE.std_logic_1164.all;
 entity uart is
     generic
     (
-        CLK_FREQ: integer := 50000000;
+        CLK_FREQ: integer := 25000000;
         BAUD: integer := 115200
     );
     port
