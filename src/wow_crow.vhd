@@ -1,6 +1,8 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use work.signals.all;
+use work.state.all;
+use work.image_info.all;
 
 entity wow_crow is
     generic
@@ -119,7 +121,9 @@ architecture behavioral of wow_crow is
             Hz: out std_logic_vector(15 downto 0);
             ROLL: out std_logic_vector(15 downto 0);
             PITCH: out std_logic_vector(15 downto 0);
-            YAW: out std_logic_vector(15 downto 0)
+            YAW: out std_logic_vector(15 downto 0);
+            speed : out integer range 0 to 31;
+            pos : out integer range 0 to 199
         );
     end component;
 
@@ -208,9 +212,49 @@ architecture behavioral of wow_crow is
         );
     end component;
 
+    component game_logic is 
+        generic (
+            MAX_LIFE: integer := 5;
+            MAX_CROW: integer := 4;
+            MAX_BULLET_PER_CROW : integer := 4;
+            SCORE_INTERVAL : integer := 250;
+            POS_INTERVAL : integer := 15;
+            CROW_APPEAR_SCORE : integer := 300;
+            WIDTH : integer := 320;
+            MIN_CROW_INTERVAL : integer := 50;
+            MAX_SCORE : integer := 1048575;
+            CROW_SCORE_INTERVAL : integer := 200;
+            BULLET_SCORE_INTERVAL : integer := 200
+        );
+        port (
+            rst : in std_logic; 
+            clk : in std_logic;
+
+            pos : in integer range 0 to 199;
+            speed : in integer range 0 to 31;
+
+            output_state : out STATE
+        );
+    end component;
+
+    component render is 
+        generic (
+            VGA_WIDTH : integer := 640;
+            VGA_HEIGHT : integer := 480
+        );
+        port (
+            rst, clk : in std_logic;
+            state : in STATE;
+            vga_done : in std_logic;
+            vga_addr : out std_logic_vector(19 downto 0);
+            render_req: out RAM_REQ;
+            render_res: in RAM_RES
+        );
+    end component;
+
     signal RST: std_logic;
 
-    signal CLK_150M, CLK_25M, CLK_75M, CLK_500: std_logic;
+    signal CLK_150M, CLK_25M, CLK_75M, CLK_1000: std_logic;
 
     signal DS_DA: std_logic_vector(23 downto 0);
     signal DS_DP: std_logic;
@@ -235,6 +279,9 @@ architecture behavioral of wow_crow is
     signal vga_done: std_logic;
     signal bldbg: std_logic_vector(3 downto 0);
     signal addr_buff: std_logic_vector(19 downto 0);
+    signal pos : integer range 0 to 199;
+    signal speed : integer range 0 to 31;
+    signal game_state : STATE;
 begin
     RST <= not RST_n;
     internal_rst <= RST or not bootloader_done;
@@ -274,13 +321,13 @@ begin
     freq_div_500_inst: freq_div
     generic map
     (
-        DIV => 25000000 / 500
+        DIV => 25000000 / 1000
     )
     port map
     (
         CLK => CLK_25M,
         RST => RST,
-        O => CLK_500
+        O => CLK_1000
     );
 
     DBG(0) <= RXD;
@@ -317,7 +364,10 @@ begin
         
         Ax => IMU_Ax,
         Ay => IMU_Ay,
-        YAW => IMU_Az
+
+        YAW => IMU_Az,
+        pos => pos,
+        speed => speed
     );
     
 	 DBG(3) <= RST_n;
@@ -363,7 +413,7 @@ begin
         DBG => bldbg
     );
     
-    vga_base <= x"00000"; -- TODO
+    
     vga_controller_inst: vga_controller
     port map
     (
@@ -380,5 +430,27 @@ begin
         GREEN => VGA_GREEN,
         BLUE => VGA_BLUE,
         DONE => vga_done
+    );
+
+    game_logic_inst : game_logic
+    port map (
+        rst => internal_rst,
+        clk => CLK_1000,
+
+        pos => pos,
+        speed => speed,
+
+        output_state => game_state
+    );
+
+    render_inst : render
+    port map (
+        rst => internal_rst,
+        clk => CLK_75M,
+        state => game_state,
+        vga_done => vga_done,
+        vga_addr => vga_base,
+        render_req => RENDERER_REQ,
+        render_res => RENDERER_RES
     );
 end;

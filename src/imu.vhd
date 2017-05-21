@@ -28,7 +28,9 @@ entity imu is
         Hz: out std_logic_vector(15 downto 0);
         ROLL: out std_logic_vector(15 downto 0);
         PITCH: out std_logic_vector(15 downto 0);
-        YAW: out std_logic_vector(15 downto 0)
+        YAW: out std_logic_vector(15 downto 0);
+        speed : out integer range 0 to 31;
+        pos : out integer range 0 to 199
     );
 end;
 
