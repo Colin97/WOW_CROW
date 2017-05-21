@@ -5,6 +5,7 @@ use IEEE.numeric_std.all;
 package state is 
     type PLAYER is record
         pos : integer range 0 to 199;
+        speed : integer range 0 to 31;
         life : integer range 0 to 5;
         score : integer range 0 to 1048575;
     end record PLAYER;
