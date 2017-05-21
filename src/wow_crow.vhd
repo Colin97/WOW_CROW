@@ -337,11 +337,11 @@ begin
         
         Ax => IMU_Ax,
         Ay => IMU_Ay,
-        Az => IMU_Az
+        YAW => IMU_Az
     );
     
-    -- DS_DA(15 downto 0) <= IMU_Az;
-    DS_DA(19 downto 0) <= addr_buff;
+    DS_DA(15 downto 0) <= IMU_Az;
+    DS_DA(19 downto 16) <= addr_buff(19 downto 16);
     DS_DA(23 downto 20) <= bldbg;
     RAM_ADDR <= addr_buff;
 
