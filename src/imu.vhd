@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.std_logic_unsigned.all;
+use IEEE.std_logic_arith;
 
 -- for JY901(-BT)
 entity imu is
@@ -38,6 +39,13 @@ architecture behavioral of imu is
     type state is (st_read_wait, st_read, st_checksum, st_data_out, st_error);
     type buffer_t is array(10 downto 0) of std_logic_vector(7 downto 0);
     constant TIMEOUT_CLOCKS: integer := CLK_FREQ / 1000 * TIMEOUT_MS;
+    constant imu_range: integer := 65536;
+    constant pos_lower_bound : integer := 24576;
+    constant pos_upper_bound : integer := 40960;
+    constant speed_lower_bound : integer := 24576;
+    constant speed_upper_bound : integer := 40960;
+    constant pos_range : integer := 199;
+    constant speed_range : integer := 31; 
 
     signal buff: buffer_t;
     signal last_ready: std_logic;
@@ -49,7 +57,8 @@ architecture behavioral of imu is
     signal error_buff: std_logic;
     
     signal data0, data1, data2, data3: std_logic_vector(15 downto 0);
-    
+    signal roll_integer : integer range 0 to 65535;
+    signal pitch_integer : integer range 0 to 65535;
     -- output buffer
     signal a_x, a_y, a_z,
            w_x, w_y, w_z,
@@ -70,6 +79,8 @@ begin
     PITCH <= pitch_buff;
     YAW <= yaw_buff;
     ERROR <= error_buff;
+    roll_integer <= conv_integer(roll_buff);
+    pitch_integer <= conv_integer(pitch_buff);
 
     checksum_correct <= '1' when buff(0) = x"55" and buff(1)(7 downto 4) = x"5" and
                                  checksum = buff(10) else '0';
@@ -77,7 +88,29 @@ begin
     data1 <= buff(5) & buff(4);
     data2 <= buff(7) & buff(6);
     data3 <= buff(9) & buff(8);
-                                  
+                          
+    calc_pos : process(pitch_integer)
+    begin
+        if pitch_integer < pos_lower_bound then 
+            pos <= 0;
+        elsif pitch_integer > pos_upper_bound then
+            pos <= pos_range;
+        else 
+            pos <= pos_range * (pitch_integer - pos_lower_bound) / (pos_upper_bound - pos_lower_bound);
+        end if;
+    end process; 
+
+    calc_speed : process(roll_integer)
+    begin
+        if roll_integer < speed_lower_bound then 
+            speed <= 0;
+        elsif roll_integer > speed_upper_bound then
+            speed <= speed_range;
+        else 
+            speed <= speed_range * (roll_integer - speed_lower_bound) / (speed_upper_bound - speed_lower_bound);
+        end if;
+    end process; 
+
     process(CLK, RST)
     begin
         if RST = '1' then
