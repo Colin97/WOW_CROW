@@ -17,15 +17,15 @@ entity wow_crow is
         -- debug signals
         DBG: out std_logic_vector(55 downto 0);
 		  
-		  -- UART
-		  RXD: in std_logic;
+		-- UART
+		RXD: in std_logic;
         
         -- SRAM
         RAM_ADDR: out std_logic_vector(ADDR_WIDTH - 1 downto 0);
         RAM_DQ: inout std_logic_vector(WORD_WIDTH - 1 downto 0);
         RAM_WE_n: out std_logic;
         RAM_OE_n: out std_logic;
-		  RAM_CS_n: out std_logic;
+		RAM_CS_n: out std_logic;
         
         -- SD
         SD_CS_n: out std_logic; -- SD_NCS, SD_DATA3_CD
@@ -221,7 +221,6 @@ architecture behavioral of wow_crow is
             POS_INTERVAL : integer := 15;
             CROW_APPEAR_SCORE : integer := 300;
             WIDTH : integer := 320;
-            MIN_CROW_INTERVAL : integer := 50;
             MAX_SCORE : integer := 1048575;
             CROW_SCORE_INTERVAL : integer := 200;
             BULLET_SCORE_INTERVAL : integer := 200
@@ -285,7 +284,7 @@ architecture behavioral of wow_crow is
 begin
     RST <= not RST_n;
     internal_rst <= RST or not bootloader_done;
-	 RAM_CS_n <= '0';
+	RAM_CS_n <= '0';
     
     pll_inst: pll
     port map
@@ -342,17 +341,6 @@ begin
         DATA_ERROR => DBG(1)
     );
     
-    process(RST, UART_DATA_READY)
-    begin
-        if RST = '1' then
-            -- DS_DA(23 downto 16) <= x"00";
-        else
-            if rising_edge(UART_DATA_READY) then
-                -- DS_DA(23 downto 16) <= UART_DATA;
-            end if;
-        end if;
-    end process;
-    
     imu_inst: imu
     port map
     (
@@ -361,19 +349,15 @@ begin
         DATA => UART_DATA,
         READY => UART_DATA_READY,
         ERROR => DBG(2),
-        
-        Ax => IMU_Ax,
-        Ay => IMU_Ay,
 
-        YAW => IMU_Az,
         pos => pos,
         speed => speed
     );
     
-	 DBG(3) <= RST_n;
+	DBG(3) <= RST_n;
     DBG(11 downto 8) <= addr_buff(19 downto 16);
     DBG(15 downto 12) <= bldbg;
-	 DBG(47 downto 16) <= RAM_DQ;
+	DBG(47 downto 16) <= RAM_DQ;
     RAM_ADDR <= addr_buff;
 
     sram_controller_inst: sram_controller
