@@ -79,5 +79,5 @@ if len(buff) % SECTOR_SIZE != 0:
 
 print('SRAM usage: {}/{}, {}%'.format(len(buff), SRAM_SIZE, len(buff) / SRAM_SIZE * 100))
 
-with open('images.bin', 'wb') as f:
+with open('images.img', 'wb') as f:
     f.write(buff)

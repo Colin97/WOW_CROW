@@ -11,7 +11,7 @@ output_files/
 simulation/
 greybox_tmp/
 *.rpt
-*.bin
+*.img
 
 # Bak
 *.bak
