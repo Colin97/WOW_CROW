@@ -14,7 +14,6 @@ entity game_logic is
         POS_INTERVAL : integer := 15;
         CROW_APPEAR_SCORE : integer := 300;
         WIDTH : integer := 320;
-        MIN_CROW_INTERVAL : integer := 50;
         MAX_SCORE : integer := 1048575;
         CROW_SCORE_INTERVAL : integer := 200;
         BULLET_SCORE_INTERVAL : integer := 200
@@ -73,12 +72,13 @@ begin
                 for i in 0 to 3 loop
                     if game_state.crows(i).in_screen = '0' then
                         if score > CROW_APPEAR_SCORE and score - last_crow_score > CROW_SCORE_INTERVAL then
-                        last_crow_score <= score;
-                        game_state.crows(i).in_screen <= '1';
-                        game_state.crows(i).pos <= WIDTH - 1;
-                        for j in 0 to 3 loop
-                            game_state.crows(i).bullets(j).in_screen <= '0';
-                        end loop;
+							last_crow_score <= score;
+							game_state.crows(i).in_screen <= '1';
+							game_state.crows(i).pos <= WIDTH - 1;
+							for j in 0 to 3 loop
+								game_state.crows(i).bullets(j).in_screen <= '0';
+							end loop;
+                        end if;
                     else 
                         if pos_cnt = 0 then
                             if game_state.crows(i).pos < 2 then
@@ -106,8 +106,8 @@ begin
                                     end if;
                                 end if;
                                 if pos_cnt = 0 then
-                                    if game_state.crows(i).pos > 400 then
-                                        game_state.crows(i).in_screen <= '0';
+                                    if game_state.crows(i).bullets(j).height > 400 then
+                                        game_state.crows(i).bullets(j).in_screen <= '0';
                                     elsif speed > 15 then 
                                         game_state.crows(i).bullets(j).height <= game_state.crows(i).bullets(j).height + 3;
                                     else
@@ -116,9 +116,8 @@ begin
                                 end if;
                             end if;
                         end loop;
-                    end if;
-                end if;                
-            end loop;
+                    end if;                
+				end loop;
             end if;
         end if;
     end process;
