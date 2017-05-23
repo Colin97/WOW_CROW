@@ -47,7 +47,9 @@ SECTOR_SIZE = 512
 IMAGES = ['background1.png', 'background2.png', 'help.png', 'crow.png', 'holybullet.png',
           'loser.png', 'person_left_1.png', 'person_left_2.png', 'person_left_3.png',
           'person_middle_1.png', 'person_middle_2.png', 'person_middle_3.png',
-          'person_right_1.png', 'person_right_2.png', 'person_right_3.png', 'bullet.png', 'start.png']
+          'person_right_1.png', 'person_right_2.png', 'person_right_3.png', 'bullet.png', 'start.png',
+          '0.png', '1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png',
+          '8.png', '9.png', 'life.png']
 
 buff = b''
 with open('mmap.csv', 'w') as f:
@@ -77,5 +79,5 @@ if len(buff) % SECTOR_SIZE != 0:
 
 print('SRAM usage: {}/{}, {}%'.format(len(buff), SRAM_SIZE, len(buff) / SRAM_SIZE * 100))
 
-with open('images.bin', 'wb') as f:
+with open('images.img', 'wb') as f:
     f.write(buff)
