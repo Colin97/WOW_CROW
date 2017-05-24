@@ -210,9 +210,7 @@ architecture behavioral of wow_crow is
             POS_INTERVAL : integer := 15;
             CROW_APPEAR_SCORE : integer := 300;
             WIDTH : integer := 320;
-            MAX_SCORE : integer := 1048575;
-            CROW_SCORE_INTERVAL : integer := 200;
-            BULLET_SCORE_INTERVAL : integer := 200
+            MAX_SCORE : integer := 1048575
         );
         port (
             rst : in std_logic; 
