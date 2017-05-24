@@ -15,8 +15,8 @@ entity game_logic is
         CROW_APPEAR_SCORE : integer := 300;
         WIDTH : integer := 320;
         MAX_SCORE : integer := 1048575;
-        CROW_SCORE_INTERVAL : integer := 200;
-        BULLET_SCORE_INTERVAL : integer := 200
+        CROW_SCORE_INTERVAL : integer := 40;
+        BULLET_SCORE_INTERVAL : integer := 30
     );
     port (
         rst : in std_logic; 
@@ -78,7 +78,7 @@ begin
 						current_crow <= current_crow + 1;
 					end if;
                     if game_state.crows(i).in_screen = '0' then
-                        if score > CROW_APPEAR_SCORE and score - last_crow_score > CROW_SCORE_INTERVAL and current_crow = i then
+                        if score > CROW_APPEAR_SCORE and score - last_crow_score > CROW_SCORE_INTERVAL * (pos MOD 4 + 1) and current_crow = i then
 							last_crow_score <= score;
 							game_state.crows(i).in_screen <= '1';
 							game_state.crows(i).pos <= WIDTH - 1;
@@ -106,7 +106,7 @@ begin
 								current_bullet <= current_bullet + 1;
 							end if;
                             if game_state.crows(i).bullets(j).in_screen = '0' then
-                                if current_bullet = i * 4 + j and score - last_bullet_score > BULLET_SCORE_INTERVAL then
+                                if current_bullet = i * 4 + j and score - last_bullet_score > BULLET_SCORE_INTERVAL * (pos MOD 4 + 1)then
                                     last_bullet_score <= score;
                                     game_state.crows(i).bullets(j).in_screen <= '1';
                                     game_state.crows(i).bullets(j).height <= 70;

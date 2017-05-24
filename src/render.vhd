@@ -177,7 +177,7 @@ begin
                             if state.crows(current_crow + 1).in_screen = '1' then
                                 x <= state.crows(current_crow + 1).pos;
                                 y <= 50;
-                                image_id <= i_holybullet;
+                                image_id <= i_crow;
                                 image_render_rst <= '1';
                             end if;
                             current_crow <= current_crow + 1;
