@@ -15,8 +15,8 @@ entity game_logic is
         CROW_APPEAR_SCORE : integer := 300;
         WIDTH : integer := 320;
         MAX_SCORE : integer := 1048575;
-        CROW_SCORE_INTERVAL : integer := 40;
-        BULLET_SCORE_INTERVAL : integer := 30
+        CROW_SCORE_INTERVAL : integer := 4;
+        BULLET_SCORE_INTERVAL : integer := 3
     );
     port (
         rst : in std_logic;  
