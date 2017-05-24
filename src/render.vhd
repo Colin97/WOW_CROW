@@ -9,7 +9,8 @@ use work.signals.all;
 entity render is 
     generic (
         VGA_WIDTH : integer := 640;
-        VGA_HEIGHT : integer := 480
+        VGA_HEIGHT : integer := 480;
+        FRAME_INTERVAL : integer := 50
     );
     port (
         rst, clk : in std_logic;
@@ -23,7 +24,8 @@ end entity render;
 
 architecture render_bhv of render is 
     type state_t is (s_init, s_new_frame, s_render_background, s_render_player, s_render_crow, s_render_bullet, s_done);
-
+	
+	signal speed_cnt : integer := 0;
     signal current_state : state_t := s_init;
     signal render_addr : integer range 0 to 1048575;
     signal image_id : integer range 0 to 31;
@@ -83,12 +85,16 @@ begin
                 when s_init =>
                     current_state <= s_new_frame;
                     vga_ram <= not vga_ram;
-                    background_frame <= not background_frame;
-                    if player_frame = 3 - 1 then
-                        player_frame <= 0;
-                    else
-                        player_frame <= player_frame + 1;
-                    end if;
+                    speed_cnt <= speed_cnt + state.player1.speed;
+                    if speed_cnt > FRAME_INTERVAL then 
+						speed_cnt <= 0;
+						background_frame <= not background_frame;
+						if player_frame = 3 - 1 then
+							player_frame <= 0;
+						else
+							player_frame <= player_frame + 1;
+						end if;
+					end if;
                     if vga_ram = '0' then
                         vga_addr <= conv_std_logic_vector(graphics_ram_1, vga_addr'length);
                         render_addr <= graphics_ram_2;
@@ -146,8 +152,8 @@ begin
                     elsif render_done = '1' then
                         current_state <= s_render_crow;
                         current_crow <= 0;
-                        if state.crows(current_crow).in_screen = '1' then
-                            x <= state.crows(current_crow).pos;
+                        if state.crows(0).in_screen = '1' then
+                            x <= state.crows(0).pos;
                             y <= 50;
                             image_id <= i_crow;
                             image_render_rst <= '1';

@@ -90,6 +90,9 @@ begin
                         if pos_cnt = 0 then
                             if game_state.crows(i).pos < 2 then
                                 game_state.crows(i).in_screen <= '0';
+                                for j in 0 to 3 loop
+									game_state.crows(i).bullets(j).in_screen <= '0';
+								end loop;
                             elsif speed > 15 then 
                                 game_state.crows(i).pos <= game_state.crows(i).pos - 2;
                             else
