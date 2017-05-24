@@ -24,8 +24,8 @@ end entity render;
 
 architecture render_bhv of render is 
     type state_t is (s_init, s_new_frame, s_render_background, s_render_player, s_render_crow, s_render_bullet, s_done);
-	
-	signal speed_cnt : integer := 0;
+
+    signal speed_cnt : integer := 0;
     signal current_state : state_t := s_init;
     signal render_addr : integer range 0 to 1048575;
     signal image_id : integer range 0 to 31;
@@ -79,7 +79,7 @@ begin
             player_frame <= 0;
             current_crow <= 0;
             current_bullet <= 0;
-			image_render_rst <= '1';
+            image_render_rst <= '1';
         elsif rising_edge(clk) then
             case current_state is
                 when s_init =>
@@ -87,14 +87,14 @@ begin
                     vga_ram <= not vga_ram;
                     speed_cnt <= speed_cnt + state.player1.speed;
                     if speed_cnt > FRAME_INTERVAL then 
-						speed_cnt <= 0;
-						background_frame <= not background_frame;
-						if player_frame = 3 - 1 then
-							player_frame <= 0;
-						else
-							player_frame <= player_frame + 1;
-						end if;
-					end if;
+                        speed_cnt <= 0;
+                        background_frame <= not background_frame;
+                        if player_frame = 3 - 1 then
+                            player_frame <= 0;
+                        else
+                            player_frame <= player_frame + 1;
+                        end if;
+                    end if;
                     if vga_ram = '0' then
                         vga_addr <= conv_std_logic_vector(graphics_ram_1, vga_addr'length);
                         render_addr <= graphics_ram_2;
