@@ -17,16 +17,16 @@ entity wow_crow is
         
         -- debug signals
         DBG: out std_logic_vector(55 downto 0);
-		  
-		-- UART
-		RXD: in std_logic;
+          
+        -- UART
+        RXD: in std_logic;
         
         -- SRAM
         RAM_ADDR: out std_logic_vector(ADDR_WIDTH - 1 downto 0);
         RAM_DQ: inout std_logic_vector(WORD_WIDTH - 1 downto 0);
         RAM_WE_n: out std_logic;
         RAM_OE_n: out std_logic;
-		RAM_CS_n: out std_logic;
+        RAM_CS_n: out std_logic;
         
         -- SD
         SD_CS_n: out std_logic; -- SD_NCS, SD_DATA3_CD
@@ -47,8 +47,8 @@ architecture behavioral of wow_crow is
     component pll IS
         PORT
         (
-            inclk0		: IN STD_LOGIC  := '0';
-            c0		: OUT STD_LOGIC 
+            inclk0        : IN STD_LOGIC  := '0';
+            c0        : OUT STD_LOGIC 
         );
     END component;
 
@@ -62,18 +62,6 @@ architecture behavioral of wow_crow is
             CLK: in std_logic;
             RST: in std_logic;
             O: out std_logic
-        );
-    end component;
-    
-    component digital_tube is
-        port
-        (
-            CLK: in std_logic;
-            RST: in std_logic;
-            DA: in std_logic_vector(23 downto 0);
-            DS_DP: out std_logic;
-            DS: out std_logic_vector(6 downto 0); -- 6-0: a-g
-            DS_EN: out std_logic_vector(5 downto 0)
         );
     end component;
     
@@ -240,12 +228,7 @@ architecture behavioral of wow_crow is
 
     signal RST, LOGIC_RST: std_logic;
 
-    signal CLK_150M, CLK_25M, CLK_50M, CLK_1000: std_logic;
-
-    signal DS_DA: std_logic_vector(23 downto 0);
-    signal DS_DP: std_logic;
-    signal DS: std_logic_vector(6 downto 0);
-    signal DS_EN: std_logic_vector(5 downto 0);
+    signal CLK_25M, CLK_50M, CLK_1000: std_logic;
 
     signal UART_DATA: std_logic_vector(7 downto 0);
     signal UART_DATA_READY: std_logic;
@@ -257,7 +240,6 @@ architecture behavioral of wow_crow is
     signal RENDERER_REQ: RAM_REQ;
     signal RENDERER_RES: RAM_RES;
 
-    signal IMU_Ax, IMU_Ay, IMU_Az: std_logic_vector(15 downto 0);
     signal bootloader_done: std_logic;
     signal internal_rst: std_logic;
     
@@ -272,15 +254,8 @@ begin
     RST <= not RST_n;
     internal_rst <= RST or not bootloader_done;
     LOGIC_RST <= (not LOGIC_RST_n) or internal_rst;
-	RAM_CS_n <= '0';
-    
-    pll_inst: pll
-    port map
-    (
-        inclk0 => CLK,
-        c0 => CLK_150M
-    );
-    
+    RAM_CS_n <= '0';
+
     freq_div_25m_inst: freq_div
     generic map
     (
@@ -342,14 +317,14 @@ begin
         speed => speed
     );
     
-	DBG(3) <= RST_n;
+    DBG(3) <= RST_n;
     DBG(4) <= game_state.crows(0).in_screen;
     DBG(5) <= game_state.crows(1).in_screen;
     DBG(6) <= game_state.crows(2).in_screen;
     DBG(7) <= game_state.crows(3).in_screen;
     DBG(11 downto 8) <= addr_buff(19 downto 16);
     DBG(15 downto 12) <= bldbg;
-	DBG(47 downto 16) <= RAM_DQ;
+    DBG(47 downto 16) <= RAM_DQ;
     RAM_ADDR <= addr_buff;
 
     sram_controller_inst: sram_controller
@@ -424,7 +399,7 @@ begin
         clk => CLK_25M,
         state => game_state,
         vga_done => vga_done,
-	     vga_addr => vga_base,
+         vga_addr => vga_base,
         render_req => RENDERER_REQ,
         render_res => RENDERER_RES
     );

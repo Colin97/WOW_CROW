@@ -52,11 +52,8 @@ set_global_assignment -name EDA_TIME_SCALE "1 ps" -section_id eda_simulation
 set_global_assignment -name EDA_OUTPUT_DATA_FORMAT VHDL -section_id eda_simulation
 set_global_assignment -name VHDL_FILE wow_crow.vhd
 set_global_assignment -name VHDL_FILE freq_div.vhd
-set_global_assignment -name VHDL_FILE digital_tube_decoder.vhd
-set_global_assignment -name VHDL_FILE digital_tube.vhd
 set_global_assignment -name VHDL_FILE uart.vhd
 set_global_assignment -name VHDL_FILE vga_controller.vhd
-set_global_assignment -name VHDL_FILE renderer.vhd
 set_global_assignment -name VHDL_FILE imu.vhd
 set_global_assignment -name VHDL_FILE image_info.vhd
 set_global_assignment -name VHDL_FILE image_render.vhd

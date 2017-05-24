@@ -34,7 +34,7 @@ architecture game_logic_bhv of game_logic is
     signal last_bullet_score : integer range 0 to MAX_SCORE := 0;
     signal score : integer range 0 to MAX_SCORE := 0;
     signal current_crow : integer := 0;
-	signal current_bullet : integer := 0;
+    signal current_bullet : integer := 0;
     signal game_state : STATE;
     constant CROW_SCORE_INTERVAL : integer := 60;
     constant BULLET_SCORE_INTERVAL : integer := 30;
@@ -71,16 +71,16 @@ begin
                 if pos_cnt = POS_INTERVAL then
                     pos_cnt <= 0;
                 end if; 
-				if current_crow = 3 then
-					current_crow <= 0;
-				else 
-					current_crow <= current_crow + 1;
-				end if;
-				if current_bullet = 15 then
-					current_bullet <= 0;
-				else
-					current_bullet <= current_bullet + 1;
-				end if;
+                if current_crow = 3 then
+                    current_crow <= 0;
+                else
+                    current_crow <= current_crow + 1;
+                end if;
+                if current_bullet = 15 then
+                    current_bullet <= 0;
+                else
+                    current_bullet <= current_bullet + 1;
+                end if;
                 for i in 0 to 3 loop
                     if game_state.crows(i).in_screen = '0' then
                         if score > CROW_APPEAR_SCORE and score - last_crow_score > (CROW_SCORE_INTERVAL + (pos + speed) MOD 128)  and current_crow = i then
@@ -96,8 +96,8 @@ begin
                             if game_state.crows(i).pos < 2 then
                                 game_state.crows(i).in_screen <= '0';
                                 for j in 0 to 3 loop
-									game_state.crows(i).bullets(j).in_screen <= '0';
-								end loop;
+                                    game_state.crows(i).bullets(j).in_screen <= '0';
+                                end loop;
                             elsif speed > 15 then 
                                 game_state.crows(i).pos <= game_state.crows(i).pos - 2;
                             else
@@ -133,7 +133,7 @@ begin
                             end if;
                         end loop;
                     end if;                
-				end loop;
+                end loop;
             end if;
         end if;
     end process;
