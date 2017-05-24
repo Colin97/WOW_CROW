@@ -77,8 +77,8 @@ begin
 					else 
 						current_crow <= current_crow + 1;
 					end if;
-                    if game_state.crows(i).in_screen = '0' and current_crow = i then
-                        if score > CROW_APPEAR_SCORE and score - last_crow_score > CROW_SCORE_INTERVAL then
+                    if game_state.crows(i).in_screen = '0' then
+                        if score > CROW_APPEAR_SCORE and score - last_crow_score > CROW_SCORE_INTERVAL and current_crow = i then
 							last_crow_score <= score;
 							game_state.crows(i).in_screen <= '1';
 							game_state.crows(i).pos <= WIDTH - 1;
@@ -102,8 +102,8 @@ begin
 							else
 								current_bullet <= current_bullet + 1;
 							end if;
-                            if current_bullet = i * 4 + j and game_state.crows(i).bullets(j).in_screen = '0' then
-                                if score - last_bullet_score > BULLET_SCORE_INTERVAL then
+                            if game_state.crows(i).bullets(j).in_screen = '0' then
+                                if current_bullet = i * 4 + j and score - last_bullet_score > BULLET_SCORE_INTERVAL then
                                     last_bullet_score <= score;
                                     game_state.crows(i).bullets(j).in_screen <= '1';
                                     game_state.crows(i).bullets(j).height <= 70;
