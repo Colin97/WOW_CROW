@@ -80,7 +80,7 @@ begin
     end process;
     
     -- done
-    DONE <= '1' when next_y >= h_active else '0';
+    DONE <= '1' when next_y >= v_active else '0';
 
     -- starts at h_active and v_active
     HSYNC <= '1' when (h_counter >= h_active + h_front_porch) and (h_counter < h_active + h_front_porch + h_sync_pulse) else '0';
