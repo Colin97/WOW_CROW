@@ -110,18 +110,6 @@ architecture behavioral of wow_crow is
             
             -- outputs
             ERROR: out std_logic;
-            Ax: out std_logic_vector(15 downto 0);
-            Ay: out std_logic_vector(15 downto 0);
-            Az: out std_logic_vector(15 downto 0);
-            Wx: out std_logic_vector(15 downto 0);
-            Wy: out std_logic_vector(15 downto 0);
-            Wz: out std_logic_vector(15 downto 0);
-            Hx: out std_logic_vector(15 downto 0);
-            Hy: out std_logic_vector(15 downto 0);
-            Hz: out std_logic_vector(15 downto 0);
-            ROLL: out std_logic_vector(15 downto 0);
-            PITCH: out std_logic_vector(15 downto 0);
-            YAW: out std_logic_vector(15 downto 0);
             speed : out integer range 0 to 31;
             pos : out integer range 0 to 199
         );
@@ -253,7 +241,7 @@ architecture behavioral of wow_crow is
 
     signal RST: std_logic;
 
-    signal CLK_150M, CLK_25M, CLK_75M, CLK_1000: std_logic;
+    signal CLK_150M, CLK_25M, CLK_50M, CLK_1000: std_logic;
 
     signal DS_DA: std_logic_vector(23 downto 0);
     signal DS_DP: std_logic;
@@ -305,7 +293,7 @@ begin
         O => CLK_25M
     );
     
-    freq_div_75m_inst: freq_div
+    freq_div_50m_inst: freq_div
     generic map
     (
         DIV => 100000000 / 50000000
@@ -314,10 +302,10 @@ begin
     (
         CLK => CLK,
         RST => RST,
-        O => CLK_75M
+        O => CLK_50M
     );
 
-    freq_div_500_inst: freq_div
+    freq_div_1000_inst: freq_div
     generic map
     (
         DIV => 25000000 / 1000
@@ -363,7 +351,7 @@ begin
     sram_controller_inst: sram_controller
     port map
     (
-        CLK => CLK_75M,
+        CLK => CLK_25M,
         RST => internal_rst,
         
         RAM_ADDR => addr_buff,
@@ -397,7 +385,6 @@ begin
         DBG => bldbg
     );
     
-    -- vga_base <= x"4B000";
     vga_controller_inst: vga_controller
     port map
     (
@@ -418,7 +405,7 @@ begin
 
     game_logic_inst : game_logic
     port map (
-        rst => '1',
+        rst => internal_rst,
         clk => CLK_1000,
 
         pos => pos,
@@ -430,7 +417,7 @@ begin
     render_inst : render
     port map (
         rst => internal_rst,
-        clk => CLK_75M,
+        clk => CLK_25M,
         state => game_state,
         vga_done => vga_done,
 	     vga_addr => vga_base,
