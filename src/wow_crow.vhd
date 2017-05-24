@@ -13,6 +13,7 @@ entity wow_crow is
     (
         CLK: in std_logic; 
         RST_n: in std_logic;
+        LOGIC_RST_n: in std_logic;
         
         -- debug signals
         DBG: out std_logic_vector(55 downto 0);
@@ -239,7 +240,7 @@ architecture behavioral of wow_crow is
         );
     end component;
 
-    signal RST: std_logic;
+    signal RST, LOGIC_RST: std_logic;
 
     signal CLK_150M, CLK_25M, CLK_50M, CLK_1000: std_logic;
 
@@ -272,6 +273,7 @@ architecture behavioral of wow_crow is
 begin
     RST <= not RST_n;
     internal_rst <= RST or not bootloader_done;
+    LOGIC_RST <= (not LOGIC_RST_n) or internal_rst;
 	RAM_CS_n <= '0';
     
     pll_inst: pll
@@ -343,6 +345,10 @@ begin
     );
     
 	DBG(3) <= RST_n;
+    DBG(4) <= game_state.crows(0).in_screen;
+    DBG(5) <= game_state.crows(1).in_screen;
+    DBG(6) <= game_state.crows(2).in_screen;
+    DBG(7) <= game_state.crows(3).in_screen;
     DBG(11 downto 8) <= addr_buff(19 downto 16);
     DBG(15 downto 12) <= bldbg;
 	DBG(47 downto 16) <= RAM_DQ;
@@ -389,7 +395,7 @@ begin
     port map
     (
         VGA_CLK => CLK_25M,
-        RST => internal_rst,
+        RST => LOGIC_RST,
         
         BASE_ADDR => vga_base,
         VGA_REQ => VGA_REQ,
@@ -405,7 +411,7 @@ begin
 
     game_logic_inst : game_logic
     port map (
-        rst => internal_rst,
+        rst => LOGIC_RST,
         clk => CLK_1000,
 
         pos => pos,
@@ -416,7 +422,7 @@ begin
 
     render_inst : render
     port map (
-        rst => internal_rst,
+        rst => LOGIC_RST,
         clk => CLK_25M,
         state => game_state,
         vga_done => vga_done,
