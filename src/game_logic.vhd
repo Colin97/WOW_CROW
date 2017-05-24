@@ -19,7 +19,7 @@ entity game_logic is
         BULLET_SCORE_INTERVAL : integer := 30
     );
     port (
-        rst : in std_logic; 
+        rst : in std_logic;  
         clk : in std_logic;
 
         pos : in integer range 0 to 199;
@@ -71,14 +71,19 @@ begin
                 if pos_cnt = POS_INTERVAL then
                     pos_cnt <= 0;
                 end if; 
+				if current_crow = 3 then
+					current_crow <= 0;
+				else 
+					current_crow <= current_crow + 1;
+				end if;
+				if current_bullet = 15 then
+					current_bullet <= 0;
+				else
+					current_bullet <= current_bullet + 1;
+				end if;
                 for i in 0 to 3 loop
-					if current_crow = 3 then
-						current_crow <= 0;
-					else 
-						current_crow <= current_crow + 1;
-					end if;
                     if game_state.crows(i).in_screen = '0' then
-                        if score > CROW_APPEAR_SCORE and score - last_crow_score > CROW_SCORE_INTERVAL * (pos MOD 4 + 1) and current_crow = i then
+                        if score > CROW_APPEAR_SCORE and score - last_crow_score > CROW_SCORE_INTERVAL * pos  and current_crow = i then
 							last_crow_score <= score;
 							game_state.crows(i).in_screen <= '1';
 							game_state.crows(i).pos <= WIDTH - 1;
@@ -100,19 +105,14 @@ begin
                             end if;
                         end if;
                         for j in 0 to 3 loop
-							if current_bullet = 15 then
-								current_bullet <= 0;
-							else
-								current_bullet <= current_bullet + 1;
-							end if;
                             if game_state.crows(i).bullets(j).in_screen = '0' then
-                                if current_bullet = i * 4 + j and score - last_bullet_score > BULLET_SCORE_INTERVAL * (pos MOD 4 + 1)then
+                                if current_bullet = i * 4 + j and score - last_bullet_score > BULLET_SCORE_INTERVAL * pos then
                                     last_bullet_score <= score;
                                     game_state.crows(i).bullets(j).in_screen <= '1';
                                     game_state.crows(i).bullets(j).height <= 70;
                                 end if;
                             else
-                                if game_state.crows(i).pos >= game_state.player1.pos and game_state.crows(i).pos <= game_state.player1.pos + 120 then
+                                if game_state.crows(i).pos >= game_state.player1.pos and game_state.crows(i).pos <= game_state.player1.pos + 80 then
                                     if game_state.crows(i).bullets(j).height > 250 then
                                         game_state.crows(i).bullets(j).in_screen <= '0';
                                         game_state.player1.life <= game_state.player1.life - 1;
