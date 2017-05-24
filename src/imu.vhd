@@ -39,11 +39,11 @@ architecture behavioral of imu is
     type state is (st_read_wait, st_read, st_checksum, st_data_out, st_error);
     type buffer_t is array(10 downto 0) of std_logic_vector(7 downto 0);
     constant TIMEOUT_CLOCKS: integer := CLK_FREQ / 1000 * TIMEOUT_MS;
-    constant imu_range: integer := 65535;
-    constant pos_lower_bound : integer := 24576;
-    constant pos_upper_bound : integer := 40960;
-    constant speed_lower_bound : integer := 24576;
-    constant speed_upper_bound : integer := 40960;
+    constant imu_range: integer := 32767;
+    constant pos_lower_bound : integer := -8192;
+    constant pos_upper_bound : integer := 8192;
+    constant speed_lower_bound : integer := -8192;
+    constant speed_upper_bound : integer := 8192;
     constant pos_range : integer := 199;
     constant speed_range : integer := 31; 
 

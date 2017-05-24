@@ -99,6 +99,7 @@ begin
                             else
                                 if game_state.crows(i).pos >= game_state.player1.pos and game_state.crows(i).pos <= game_state.player1.pos + 120 then
                                     if game_state.crows(i).bullets(j).height > 250 then
+                                        game_state.crows(i).bullets(j).in_screen <= '0';
                                         game_state.player1.life <= game_state.player1.life - 1;
                                         if game_state.player1.life = 0 then 
                                             game_state.state <= 2;
@@ -109,9 +110,9 @@ begin
                                     if game_state.crows(i).bullets(j).height > 400 then
                                         game_state.crows(i).bullets(j).in_screen <= '0';
                                     elsif speed > 15 then 
-                                        game_state.crows(i).bullets(j).height <= game_state.crows(i).bullets(j).height + 3;
+                                        game_state.crows(i).bullets(j).height <= game_state.crows(i).bullets(j).height + 5;
                                     else
-                                        game_state.crows(i).bullets(j).height <= game_state.crows(i).bullets(j).height + 2;
+                                        game_state.crows(i).bullets(j).height <= game_state.crows(i).bullets(j).height + 4;
                                     end if;
                                 end if;
                             end if;
