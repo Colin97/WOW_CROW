@@ -7,7 +7,7 @@ use work.image_info.all;
 entity wow_crow is
     generic
     (
-        SYS_CLK: integer := 50000000
+        SYS_CLK: integer := 100000000
     );
     port
     (
@@ -296,11 +296,11 @@ begin
     freq_div_25m_inst: freq_div
     generic map
     (
-        DIV => 150000000 / 25000000
+        DIV => 100000000 / 25000000
     )
     port map
     (
-        CLK => CLK_150M,
+        CLK => CLK,
         RST => RST,
         O => CLK_25M
     );
@@ -308,11 +308,11 @@ begin
     freq_div_75m_inst: freq_div
     generic map
     (
-        DIV => 150000000 / 75000000
+        DIV => 100000000 / 50000000
     )
     port map
     (
-        CLK => CLK_150M,
+        CLK => CLK,
         RST => RST,
         O => CLK_75M
     );
@@ -397,7 +397,7 @@ begin
         DBG => bldbg
     );
     
-    
+    -- vga_base <= x"4B000";
     vga_controller_inst: vga_controller
     port map
     (
@@ -418,7 +418,7 @@ begin
 
     game_logic_inst : game_logic
     port map (
-        rst => internal_rst,
+        rst => '1',
         clk => CLK_1000,
 
         pos => pos,
@@ -433,7 +433,7 @@ begin
         clk => CLK_75M,
         state => game_state,
         vga_done => vga_done,
-        vga_addr => vga_base,
+	     vga_addr => vga_base,
         render_req => RENDERER_REQ,
         render_res => RENDERER_RES
     );

@@ -49,6 +49,7 @@ begin
             render_req.WE_n <= '1';
             render_req.DEN <= '0';
             render_req.ADDR <= conv_std_logic_vector(0, render_req.ADDR'length);
+				data <= x"0000";
         elsif rising_edge(clk) then
             case current_state is
                 when s_init =>
