@@ -45,8 +45,8 @@ architecture behavioral of imu is
     signal error_buff: std_logic;
     
     signal data0, data1, data2, data3: std_logic_vector(15 downto 0);
-    signal roll_integer : integer range 0 to 65535;
-    signal pitch_integer : integer range 0 to 65535;
+    signal roll_integer : integer range -32768 to 32767;
+    signal pitch_integer : integer range -32768 to 32767;
     -- output buffer
     signal a_x, a_y, a_z,
            w_x, w_y, w_z,
