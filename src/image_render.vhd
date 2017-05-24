@@ -69,7 +69,7 @@ begin
                         else
                             alpha := render_res.DIN(16);
                         end if;
-                        if (row + y) >= VGA_HEIGHT or (col + x) >= VGA_WIDTH  then -- /*or alpha = '0'*/
+                        if (row + y) < 0 or (col + x) < 0 or (row + y) >= VGA_HEIGHT or (col + x) >= VGA_WIDTH or alpha = '0' then 
                             current_state <= s_write;
                         else
                             if cnt mod 2 = 0 then
