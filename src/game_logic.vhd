@@ -35,6 +35,8 @@ architecture game_logic_bhv of game_logic is
     signal last_crow_score : integer range 0 to MAX_SCORE := 0;
     signal last_bullet_score : integer range 0 to MAX_SCORE := 0;
     signal score : integer range 0 to MAX_SCORE := 0;
+    signal current_crow : integer := 0;
+	signal current_bullet : integer := 0;
     signal game_state : STATE;
 begin
     game_state.player1.score <= score;
@@ -70,7 +72,12 @@ begin
                     pos_cnt <= 0;
                 end if; 
                 for i in 0 to 3 loop
-                    if game_state.crows(i).in_screen = '0' then
+					if current_crow = 3 then
+						current_crow <= 0;
+					else 
+						current_crow <= current_crow + 1;
+					end if;
+                    if game_state.crows(i).in_screen = '0' and current_crow = i then
                         if score > CROW_APPEAR_SCORE and score - last_crow_score > CROW_SCORE_INTERVAL then
 							last_crow_score <= score;
 							game_state.crows(i).in_screen <= '1';
@@ -90,7 +97,12 @@ begin
                             end if;
                         end if;
                         for j in 0 to 3 loop
-                            if game_state.crows(i).bullets(j).in_screen = '0' then
+							if current_bullet = 15 then
+								current_bullet <= 0;
+							else
+								current_bullet <= current_bullet + 1;
+							end if;
+                            if current_bullet = i * 4 + j and game_state.crows(i).bullets(j).in_screen = '0' then
                                 if score - last_bullet_score > BULLET_SCORE_INTERVAL then
                                     last_bullet_score <= score;
                                     game_state.crows(i).bullets(j).in_screen <= '1';
