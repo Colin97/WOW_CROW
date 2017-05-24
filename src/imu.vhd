@@ -18,18 +18,6 @@ entity imu is
         READY: in std_logic;
         
         ERROR: out std_logic;
-        Ax: out std_logic_vector(15 downto 0);
-        Ay: out std_logic_vector(15 downto 0);
-        Az: out std_logic_vector(15 downto 0);
-        Wx: out std_logic_vector(15 downto 0);
-        Wy: out std_logic_vector(15 downto 0);
-        Wz: out std_logic_vector(15 downto 0);
-        Hx: out std_logic_vector(15 downto 0);
-        Hy: out std_logic_vector(15 downto 0);
-        Hz: out std_logic_vector(15 downto 0);
-        ROLL: out std_logic_vector(15 downto 0);
-        PITCH: out std_logic_vector(15 downto 0);
-        YAW: out std_logic_vector(15 downto 0);
         speed : out integer range 0 to 31;
         pos : out integer range 0 to 199
     );
@@ -66,18 +54,18 @@ architecture behavioral of imu is
            roll_buff, pitch_buff, yaw_buff: std_logic_vector(15 downto 0);
 begin
     -- outputs
-    Ax <= a_x;
-    Ay <= a_y;
-    Az <= a_z;
-    Wx <= w_x;
-    Wy <= w_y;
-    Wz <= w_z;
-    Hx <= h_x;
-    Hy <= h_y;
-    Hz <= h_z;
-    ROLL <= roll_buff;
-    PITCH <= pitch_buff;
-    YAW <= yaw_buff;
+    --Ax <= a_x;
+    --Ay <= a_y;
+    --Az <= a_z;
+    --Wx <= w_x;
+    --Wy <= w_y;
+    --Wz <= w_z;
+    --Hx <= h_x;
+    --Hy <= h_y;
+    --Hz <= h_z;
+    --ROLL <= roll_buff;
+    --PITCH <= pitch_buff;
+    --YAW <= yaw_buff;
     ERROR <= error_buff;
     roll_integer <= conv_integer(roll_buff);
     pitch_integer <= conv_integer(pitch_buff);
