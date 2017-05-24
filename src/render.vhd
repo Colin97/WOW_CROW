@@ -164,14 +164,14 @@ begin
                             if state.crows(0).bullets(current_bullet).in_screen = '1' then
                                 x <= state.crows(0).pos;
                                 y <= state.crows(0).bullets(current_bullet).height;
-                                image_id <= i_bullet;
+                                image_id <= i_holybullet;
                                 image_render_rst <= '1';
                             end if;
                         else
                             if state.crows(current_crow + 1).in_screen = '1' then
                                 x <= state.crows(current_crow + 1).pos;
                                 y <= 50;
-                                image_id <= i_bullet;
+                                image_id <= i_holybullet;
                                 image_render_rst <= '1';
                             end if;
                             current_crow <= current_crow + 1;
@@ -190,7 +190,7 @@ begin
                                 if state.crows(current_crow + 1).bullets(0).in_screen = '1' then
                                     x <= state.crows(current_crow + 1).pos;
                                     y <= state.crows(current_crow + 1).bullets(0).height;
-                                    image_id <= i_bullet;
+                                    image_id <= i_holybullet;
                                     image_render_rst <= '1';
                                 end if;
                                 current_crow <= current_crow + 1;
@@ -199,7 +199,7 @@ begin
                             if state.crows(current_crow).bullets(current_bullet + 1).in_screen = '1' then
                                 x <= state.crows(current_crow).pos;
                                 y <= state.crows(current_crow).bullets(current_bullet + 1).height;
-                                image_id <= i_bullet;
+                                image_id <= i_holybullet;
                                 image_render_rst <= '1';
                             end if;
                             current_bullet <= current_bullet + 1;
