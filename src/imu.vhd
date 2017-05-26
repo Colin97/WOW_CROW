@@ -54,20 +54,8 @@ architecture behavioral of imu is
            roll_buff, pitch_buff, yaw_buff: std_logic_vector(15 downto 0);
 begin
     -- outputs
-    --Ax <= a_x;
-    --Ay <= a_y;
-    --Az <= a_z;
-    --Wx <= w_x;
-    --Wy <= w_y;
-    --Wz <= w_z;
-    --Hx <= h_x;
-    --Hy <= h_y;
-    --Hz <= h_z;
-    --ROLL <= roll_buff;
-    --PITCH <= pitch_buff;
-    --YAW <= yaw_buff;
     ERROR <= error_buff;
-    roll_integer <= conv_integer(roll_buff);
+    roll_integer <= -conv_integer(roll_buff);
     pitch_integer <= conv_integer(pitch_buff);
 
     checksum_correct <= '1' when buff(0) = x"55" and buff(1)(7 downto 4) = x"5" and
