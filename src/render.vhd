@@ -23,7 +23,7 @@ entity render is
 end entity render;
 
 architecture render_bhv of render is 
-    type state_t is (s_init, s_new_frame, s_render_background, s_render_player, s_render_crow, s_render_bullet, s_done);
+    type state_t is (s_init, s_new_frame, s_render_background, s_render_player, s_render_crow, s_render_bullet, s_render_life, s_render_score, s_done);
 
     signal speed_cnt : integer := 0;
     signal current_state : state_t := s_init;
@@ -38,6 +38,7 @@ architecture render_bhv of render is
     signal player_frame : integer range 0 to 4 := 0;
     signal current_crow : integer range 0 to 4 := 0;
     signal current_bullet : integer range 0 to 4 := 0;
+    signal current_life : integer range 0 to 5 := 0;
 
     component image_render is
         generic (
@@ -191,7 +192,12 @@ begin
                             current_bullet <= 0;
                             if current_crow = 4 - 1 then
                                 current_crow <= 0;
-                                current_state <= s_done;
+                                current_state <= s_render_life;
+                                x <= 20;
+                                y <= 420;
+                                image_id <= i_life;
+                                image_render_rst <= '1';
+                                current_life <= 1;
                             else
                                 if state.crows(current_crow + 1).bullets(0).in_screen = '1' then
                                     x <= state.crows(current_crow + 1).pos;
@@ -209,6 +215,20 @@ begin
                                 image_render_rst <= '1';
                             end if;
                             current_bullet <= current_bullet + 1;
+                        end if;
+                    end if;
+                when s_render_life =>
+                    if image_render_rst = '1' then
+                        image_render_rst <= '0';
+                    elsif render_done = '1' then
+                        if current_life = state.player1.life then
+                            current_state <= s_done;
+                        else
+                            x <= 20 + current_life * image_width(i_life);
+                            y <= 420;
+                            image_id <= i_life;
+                            image_render_rst <= '1';
+                            current_life <= current_life + 1;
                         end if;
                     end if;
                 when s_done =>
