@@ -23,7 +23,8 @@ entity render is
 end entity render;
 
 architecture render_bhv of render is 
-    type state_t is (s_init, s_new_frame, s_render_background, s_render_player, s_render_crow, s_render_bullet, s_render_life, s_render_score, s_render_game_over, s_done);
+    type state_t is (s_init, s_new_frame, s_render_background, s_render_player, s_render_crow, s_render_bullet,
+                     s_render_life, s_render_score, s_render_game_over, s_render_logo, s_render_start, s_done);
 
     signal speed_cnt : integer := 0;
     signal current_state : state_t := s_init;
@@ -117,8 +118,8 @@ begin
                     if image_render_rst = '1' then
                         image_render_rst <= '0';
                     elsif render_done = '1' then
-                        current_state <= s_render_player;
                         if state.state = 1 then 
+                            current_state <= s_render_player;
                             if state.player1.pos < 70 then
                                 if player_frame = 0 then
                                     image_id <= i_person_left_1;
@@ -147,13 +148,35 @@ begin
                             x <= state.player1.pos;
                             y <= 255;
                             image_render_rst <= '1';
-                        else 
+                        elsif state.state = 2 then
+                            current_state <= s_render_player;
                             x <= 78;
                             y <= 98;
                             image_id <= i_loser;
                             image_render_rst <= '1';
+                        else
+                            current_state <= s_render_logo;
+                            x <= 0;
+                            y <= 100;
+                            image_id <= i_logo;
+                            image_render_rst <= '1';
                         end if;
-
+                    end if;
+                when s_render_logo =>
+                    if image_render_rst = '1' then
+                        image_render_rst <= '0';
+                    elsif render_done = '1' then
+                        current_state <= s_render_start;
+                        x <= 15;
+                        y <= 300;
+                        image_id <= i_start;
+                        image_render_rst <= '1';
+                    end if;
+                when s_render_start =>
+                    if image_render_rst = '1' then
+                        image_render_rst <= '0';
+                    elsif render_done = '1' then
+                        current_state <= s_done;
                     end if;
                 when s_render_player =>
                     if image_render_rst = '1' then
@@ -236,7 +259,7 @@ begin
                         if current_life = state.player1.life then
                             current_state <= s_done;
                         else
-                            x <= 20 + current_life * image_width(i_life);
+                            x <= 20 + current_life * (image_width(i_life) + 5);
                             y <= 420;
                             image_id <= i_life;
                             image_render_rst <= '1';

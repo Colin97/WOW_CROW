@@ -47,7 +47,7 @@ begin
     main : process(clk, rst)
     begin
         if rst = '1' then
-            game_state.state <= 1;
+            game_state.state <= 0;
             game_state.player1.life <= MAX_LIFE;
             score_cnt <= 0;
             pos_cnt <= 0;
@@ -61,7 +61,9 @@ begin
                 end loop;
             end loop;
         elsif rising_edge(clk) then
-            if game_state.state = 1 then
+            if game_state.state = 0 then
+                game_state.state <= 1;
+            elsif game_state.state = 1 then
                 score_cnt <= score_cnt + 1;
                 if score_cnt = SCORE_INTERVAL then
                     score_cnt <= 0;
