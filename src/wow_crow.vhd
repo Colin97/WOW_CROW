@@ -14,6 +14,7 @@ entity wow_crow is
         CLK: in std_logic; 
         RST_n: in std_logic;
         LOGIC_RST_n: in std_logic;
+        START_n: in std_logic;
         
         -- debug signals
         DBG: out std_logic_vector(55 downto 0);
@@ -242,11 +243,21 @@ architecture behavioral of wow_crow is
     signal pos : integer range 0 to 199;
     signal speed : integer range 0 to 31;
     signal game_state : STATE;
+    signal started: std_logic;
 begin
     RST <= not RST_n;
     internal_rst <= RST or not bootloader_done;
     LOGIC_RST <= (not LOGIC_RST_n) or internal_rst;
     RAM_CS_n <= '0';
+    
+    process(START_n, LOGIC_RST)
+    begin
+        if LOGIC_RST = '1' then
+            started <= '0';
+        elsif falling_edge(START_n) then
+            started <= '1';
+        end if;
+    end process;
 
     freq_div_25m_inst: freq_div
     generic map
@@ -360,7 +371,7 @@ begin
     port map
     (
         VGA_CLK => CLK_25M,
-        RST => LOGIC_RST,
+        RST => internal_rst,
         
         BASE_ADDR => vga_base,
         VGA_REQ => VGA_REQ,
@@ -376,7 +387,7 @@ begin
 
     game_logic_inst : game_logic
     port map (
-        rst => LOGIC_RST,
+        rst => LOGIC_RST or not started,
         clk => CLK_1000,
 
         pos => pos,
