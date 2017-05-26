@@ -1,6 +1,18 @@
 # WOW_CROW 哇！乌鸦！
 
+![logo](https://raw.githubusercontent.com/Colin97/WOW_CROW/master/artwork/logo.png)
+
 A double somatic game on FPGA.
+
+## Features
+
+* SD card bootloader (SPI mode) with SDHC/SDXC support
+* UART interface, wireless IMU and JY-901 packets parser
+* VGA display 640x480 @ 60Hz
+* Smooth animations
+* Excellent game experience
+* Fantastic sound effects (TODO)
+* Remote control using IR (TODO)
 
 ## References
 
