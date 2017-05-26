@@ -46,10 +46,10 @@ begin
                     when st_vga =>
                         vga_data <= RAM_DQ; -- keep data for vga
                         current_state <= st_renderer1;
-                                -- current_state <= st_vga; -- FIXME
+                        -- current_state <= st_vga; -- FIXME
                     when st_renderer1 =>
                         -- current_state <= st_renderer2;
-                                current_state <= st_vga; -- FIXME
+                        current_state <= st_vga; -- FIXME
                     when st_renderer2 =>
                         current_state <= st_vga;
                     when others =>

@@ -44,14 +44,6 @@ entity wow_crow is
 end;
 
 architecture behavioral of wow_crow is
-    component pll IS
-        PORT
-        (
-            inclk0        : IN STD_LOGIC  := '0';
-            c0        : OUT STD_LOGIC 
-        );
-    END component;
-
     component freq_div is
         generic
         (
