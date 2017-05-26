@@ -116,7 +116,7 @@ begin
                                     if game_state.crows(i).bullets(j).height > 250 then
                                         game_state.crows(i).bullets(j).in_screen <= '0';
                                         game_state.player1.life <= game_state.player1.life - 1;
-                                        if game_state.player1.life = 0 then 
+                                        if game_state.player1.life = 1 then 
                                             game_state.state <= 2;
                                         end if;
                                     end if;
