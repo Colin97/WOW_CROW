@@ -236,7 +236,7 @@ begin
                         if current_life = state.player1.life then
                             current_state <= s_done;
                         else
-                            x <= 20 + current_life * image_width(i_life);
+                            x <= 20 + current_life * (image_width(i_life) + 5);
                             y <= 420;
                             image_id <= i_life;
                             image_render_rst <= '1';
