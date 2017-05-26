@@ -23,7 +23,7 @@ entity render is
 end entity render;
 
 architecture render_bhv of render is 
-    type state_t is (s_init, s_new_frame, s_render_background, s_render_player, s_render_crow, s_render_bullet, s_render_life, s_render_score, s_done);
+    type state_t is (s_init, s_new_frame, s_render_background, s_render_player, s_render_crow, s_render_bullet, s_render_life, s_render_score, s_render_game_over, s_done);
 
     signal speed_cnt : integer := 0;
     signal current_state : state_t := s_init;
@@ -118,46 +118,58 @@ begin
                         image_render_rst <= '0';
                     elsif render_done = '1' then
                         current_state <= s_render_player;
-                        if state.player1.pos < 70 then
-                            if player_frame = 0 then
-                                image_id <= i_person_left_1;
-                            elsif player_frame = 1 then
-                                image_id <= i_person_left_2;
+                        if state.state = 1 then 
+                            if state.player1.pos < 70 then
+                                if player_frame = 0 then
+                                    image_id <= i_person_left_1;
+                                elsif player_frame = 1 then
+                                    image_id <= i_person_left_2;
+                                else
+                                    image_id <= i_person_left_3;
+                                end if;
+                            elsif state.player1.pos > 130 then
+                                if player_frame = 0 then
+                                    image_id <= i_person_right_1;
+                                elsif player_frame = 1 then
+                                    image_id <= i_person_right_2;
+                                else
+                                    image_id <= i_person_right_3;
+                                end if;
                             else
-                                image_id <= i_person_left_3;
+                                if player_frame = 0 then
+                                    image_id <= i_person_middle_1;
+                                elsif player_frame = 1 then
+                                    image_id <= i_person_middle_2;
+                                else 
+                                    image_id <= i_person_middle_3;
+                                end if;
                             end if;
-                        elsif state.player1.pos > 130 then
-                            if player_frame = 0 then
-                                image_id <= i_person_right_1;
-                            elsif player_frame = 1 then
-                                image_id <= i_person_right_2;
-                            else
-                                image_id <= i_person_right_3;
-                            end if;
-                        else
-                            if player_frame = 0 then
-                                image_id <= i_person_middle_1;
-                            elsif player_frame = 1 then
-                                image_id <= i_person_middle_2;
-                            else 
-                                image_id <= i_person_middle_3;
-                            end if;
+                            x <= state.player1.pos;
+                            y <= 255;
+                            image_render_rst <= '1';
+                        else 
+                            x <= 78;
+                            y <= 98;
+                            image_id <= i_loser;
+                            image_render_rst <= '1';
                         end if;
-                        x <= state.player1.pos;
-                        y <= 255;
-                        image_render_rst <= '1';
+
                     end if;
                 when s_render_player =>
                     if image_render_rst = '1' then
                         image_render_rst <= '0';
                     elsif render_done = '1' then
-                        current_state <= s_render_crow;
-                        current_crow <= 0;
-                        if state.crows(0).in_screen = '1' then
-                            x <= state.crows(0).pos;
-                            y <= 50;
-                            image_id <= i_crow;
-                            image_render_rst <= '1';
+                        if state.state = 1 then
+                            current_state <= s_render_crow;
+                            current_crow <= 0;
+                            if state.crows(0).in_screen = '1' then
+                                x <= state.crows(0).pos;
+                                y <= 50;
+                                image_id <= i_crow;
+                                image_render_rst <= '1';
+                            end if;
+                        else 
+                            current_state <= s_done;
                         end if;
                     end if; 
                 when s_render_crow =>
