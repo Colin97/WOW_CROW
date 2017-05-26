@@ -33,10 +33,11 @@ architecture image_render_bhv of image_render is
     shared variable row : integer range 0 to VGA_HEIGHT * 2;
     shared variable col : integer range 0 to VGA_WIDTH * 2;
     shared variable cnt : integer range 0 to 1024 * 1024 * 2 - 1;
-    shared variable alpha : std_logic;
+    signal image_pixel: std_logic_vector(15 downto 0);
 begin
     render_req.DOUT <= x"0000" & data;
     done <= '1' when current_state = s_done else '0';
+    image_pixel <= render_res.DIN(15 downto 0) when cnt mod 2 = 0 else render_res.DIN(31 downto 16);
 
     main : process(clk, rst)
     begin
@@ -64,20 +65,11 @@ begin
                                                              render_req.ADDR'length);
                 when s_read =>
                     if render_res.DONE = '1' then
-                        if cnt mod 2 = 0 then
-                            alpha := render_res.DIN(0);
-                        else
-                            alpha := render_res.DIN(16);
-                        end if;
-                        if (row + y) < 0 or (col + x) < 0 or (row + y) >= VGA_HEIGHT or (col + x) >= VGA_WIDTH / 2 or alpha = '0' then 
+                        if (row + y) < 0 or (col + x) < 0 or (row + y) >= VGA_HEIGHT or (col + x) >= VGA_WIDTH / 2 or image_pixel(0) = '0' then
                             current_state <= s_write;
                         else
-                            if cnt mod 2 = 0 then
-                                data <= render_res.DIN(15 downto 0);
-                            else
-                                data <= render_res.DIN(31 downto 16);
-                            end if;
                             current_state <= s_write;
+                            data <= image_pixel;
                             render_req.OE_n <= '1';
                             render_req.WE_n <= '0';
                             render_req.DEN <= '1';
