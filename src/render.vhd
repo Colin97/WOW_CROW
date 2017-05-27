@@ -24,7 +24,7 @@ end entity render;
 
 architecture render_bhv of render is 
     type state_t is (s_init, s_new_frame, s_render_background, s_render_player, s_render_crow, s_render_bullet,
-                     s_render_life, s_render_score, s_render_game_over, s_render_logo, s_render_start, s_done);
+                     s_render_life, s_render_score, s_render_game_over, s_render_logo, s_render_start, s_score, s_done);
 
     signal speed_cnt : integer := 0;
     signal current_state : state_t := s_init;
@@ -40,7 +40,10 @@ architecture render_bhv of render is
     signal current_crow : integer range 0 to 4 := 0;
     signal current_bullet : integer range 0 to 4 := 0;
     signal current_life : integer range 0 to 5 := 0;
-
+    type DIGITS is array (0 to 4) of integer range 0 to 1048575;
+    constant digit : DIGITS := (10000, 1000, 100, 10, 1);
+    signal current_digit : integer;
+    signal current_score : integer;
     component image_render is
         generic (
             VGA_WIDTH : integer := 640;
@@ -257,13 +260,42 @@ begin
                         image_render_rst <= '0';
                     elsif render_done = '1' then
                         if current_life = state.player1.life then
-                            current_state <= s_done;
+                            current_state <= s_render_score;
+                            for i in 0 to 9 loop
+                                if state.player1.score >= i * digit(0) and state.player1.score < (i + 1) * digit(0) then
+                                    image_id <= i_number(i);
+                                    x <= 160;
+                                    y <= 20;
+                                    image_render_rst <= '1';
+                                    current_score <= state.player1.score - i * digit(0);
+                                end if;
+                            end loop;
+                            current_digit <= 1;
                         else
                             x <= 20 + current_life * (image_width(i_life) + 5);
                             y <= 420;
                             image_id <= i_life;
                             image_render_rst <= '1';
                             current_life <= current_life + 1;
+                        end if;
+                    end if;
+                when s_render_score =>
+                    if image_render_rst = '1' then
+                        image_render_rst <= '0';
+                    elsif render_done = '1' then
+                        if current_digit = 4 then
+                            current_state <= s_done;
+                        else
+                            for i in 0 to 9 loop
+                                if current_score >= i * digit(current_digit) and current_score < (i + 1) * digit(current_digit) then
+                                    image_id <= i_number(i);
+                                    x <= 160 + 32 * current_digit;
+                                    y <= 20;
+                                    image_render_rst <= '1';
+                                    current_score <= current_score - i * digit(current_digit);
+                                end if;
+                            end loop;
+                            current_digit <= current_digit + 1;
                         end if;
                     end if;
                 when s_done =>
