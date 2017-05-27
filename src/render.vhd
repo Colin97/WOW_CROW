@@ -195,7 +195,17 @@ begin
                                 image_render_rst <= '1';
                             end if;
                         else 
-                            current_state <= s_done;
+                            current_state <= s_render_score;
+                            for i in 0 to 9 loop
+                                if state.player1.score >= i * digit(0) and state.player1.score < (i + 1) * digit(0) then
+                                    image_id <= i_number(i);
+                                    x <= 160;
+                                    y <= 20;
+                                    image_render_rst <= '1';
+                                    current_score <= state.player1.score - i * digit(0);
+                                end if;
+                            end loop;
+                            current_digit <= 1;
                         end if;
                     end if; 
                 when s_render_crow =>
@@ -283,13 +293,13 @@ begin
                     if image_render_rst = '1' then
                         image_render_rst <= '0';
                     elsif render_done = '1' then
-                        if current_digit = 4 then
+                        if current_digit = 5 then
                             current_state <= s_done;
                         else
                             for i in 0 to 9 loop
                                 if current_score >= i * digit(current_digit) and current_score < (i + 1) * digit(current_digit) then
                                     image_id <= i_number(i);
-                                    x <= 160 + 32 * current_digit;
+                                    x <= 160 + 25 * current_digit;
                                     y <= 20;
                                     image_render_rst <= '1';
                                     current_score <= current_score - i * digit(current_digit);
