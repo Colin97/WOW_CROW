@@ -160,7 +160,7 @@ begin
                         else
                             current_state <= s_render_logo;
                             x <= 0;
-                            y <= 100;
+                            y <= 70;
                             image_id <= i_logo;
                             image_render_rst <= '1';
                         end if;
