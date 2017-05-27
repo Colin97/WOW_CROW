@@ -1,6 +1,6 @@
 # WOW_CROW 哇！乌鸦！
 
-![logo](https://raw.githubusercontent.com/Colin97/WOW_CROW/master/artwork/logo.png)
+![logo](https://raw.githubusercontent.com/Colin97/WOW_CROW/master/artwork/demo.png)
 
 A double somatic game on FPGA.
 
