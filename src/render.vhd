@@ -66,7 +66,7 @@ begin
     port map (
         image_id => image_id,
         base_address => render_addr,
-        x => x,
+        x => x + 160,
         y => y,
         rst => image_render_rst,
         clk => clk,
