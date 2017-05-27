@@ -199,7 +199,7 @@ begin
                             for i in 0 to 9 loop
                                 if state.player1.score >= i * digit(0) and state.player1.score < (i + 1) * digit(0) then
                                     image_id <= i_number(i);
-                                    x <= 160;
+                                    x <= 180;
                                     y <= 20;
                                     image_render_rst <= '1';
                                     current_score <= state.player1.score - i * digit(0);
@@ -274,7 +274,7 @@ begin
                             for i in 0 to 9 loop
                                 if state.player1.score >= i * digit(0) and state.player1.score < (i + 1) * digit(0) then
                                     image_id <= i_number(i);
-                                    x <= 160;
+                                    x <= 180;
                                     y <= 20;
                                     image_render_rst <= '1';
                                     current_score <= state.player1.score - i * digit(0);
@@ -299,7 +299,7 @@ begin
                             for i in 0 to 9 loop
                                 if current_score >= i * digit(current_digit) and current_score < (i + 1) * digit(current_digit) then
                                     image_id <= i_number(i);
-                                    x <= 160 + 25 * current_digit;
+                                    x <= 180 + 25 * current_digit;
                                     y <= 20;
                                     image_render_rst <= '1';
                                     current_score <= current_score - i * digit(current_digit);
