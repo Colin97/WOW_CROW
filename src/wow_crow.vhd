@@ -52,21 +52,32 @@ end;
 
 architecture behavioral of wow_crow is
     component IR is 
-        generic (
-            lead_low : integer := 9000;
-            lead_high : integer := 4500;
-            data_low : integer := 560;
-            bit_0_high : integer := 560;
-            bit_1_high : integer := 1680;
-            data_length : integer := 32;
-            error_range : integer := 200
-        );
         port (
             rst : in std_logic;
             clk : in std_logic;
             RX : in std_logic;
             data : out std_logic_vector(31 downto 0);
-            done : out std_logic
+            done : out std_logic;
+            repeat : out std_logic
+        );
+    end component;
+    
+    component remote_controller is
+        generic
+        (
+            CLK_FREQ: integer := 1000000;
+            TIMEOUT_MS: integer := 150
+        );
+        port
+        (
+            CLK: in std_logic;
+            RST: in std_logic;
+            DATA: in std_logic_vector(31 downto 0);
+            READY: in std_logic;
+            REPEAT: in std_logic;
+
+            OK: out std_logic;
+            UP: out std_logic
         );
     end component;
 
@@ -284,18 +295,21 @@ architecture behavioral of wow_crow is
     signal started: std_logic;
     signal hit : std_logic;
     signal IR_DATA : std_logic_vector(31 downto 0);
-    signal IR_DONE : std_logic;
+    signal IR_DONE, IR_REPEAT, RC_OK, RC_UP : std_logic;
+    signal start: std_logic;
 begin
     RST <= not RST_n;
     internal_rst <= RST or not bootloader_done;
-    LOGIC_RST <= (not LOGIC_RST_n) or internal_rst;
+    LOGIC_RST <= (RC_UP or not LOGIC_RST_n) or internal_rst;
     RAM_CS_n <= '0';
     
-    process(START_n, LOGIC_RST)
+    start <= not START_n or RC_OK;
+    
+    process(start, LOGIC_RST)
     begin
         if LOGIC_RST = '1' then
             started <= '0';
-        elsif falling_edge(START_n) then
+        elsif rising_edge(start) then
             started <= '1';
         end if;
     end process;
@@ -374,8 +388,10 @@ begin
     );
     
     DBG(3) <= RST_n;
-    DBG(4) <= game_state.crows(0).in_screen;
-    DBG(5) <= game_state.crows(1).in_screen;
+    --DBG(4) <= game_state.crows(0).in_screen;
+    --DBG(5) <= game_state.crows(1).in_screen;
+    DBG(4) <= RC_OK;
+    DBG(5) <= RC_UP;
     DBG(6) <= game_state.crows(2).in_screen;
     DBG(7) <= game_state.crows(3).in_screen;
     DBG(11 downto 8) <= addr_buff(19 downto 16);
@@ -471,10 +487,24 @@ begin
 
     IR_inst : IR
     port map (
-        rst => LOGIC_RST,
+        rst => internal_rst,
         clk => CLK_1M,
         RX => IR_RX,
         data => IR_DATA,
-        done => IR_DONE
+        done => IR_DONE,
+        repeat => IR_REPEAT
+    );
+    
+    remote_controller_inst: remote_controller
+    port map
+    (
+        CLK => CLK_1M,
+        RST => internal_rst,
+        DATA => IR_DATA,
+        READY => IR_DONE,
+        REPEAT => IR_REPEAT,
+
+        OK => RC_OK,
+        UP => RC_UP
     );
 end;
