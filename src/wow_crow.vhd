@@ -59,7 +59,7 @@ architecture behavioral of wow_crow is
             bit_0_high : integer := 560;
             bit_1_high : integer := 1680;
             data_length : integer := 32;
-            error_range : integer := 10
+            error_range : integer := 200
         );
         port (
             rst : in std_logic;
@@ -259,7 +259,7 @@ architecture behavioral of wow_crow is
 
     signal RST, LOGIC_RST: std_logic;
 
-    signal CLK_25M, CLK_50M, CLK_1000: std_logic;
+    signal CLK_25M, CLK_50M, CLK_1M, CLK_1000: std_logic;
 
     signal UART_DATA: std_logic_vector(7 downto 0);
     signal UART_DATA_READY: std_logic;
@@ -323,15 +323,27 @@ begin
         RST => RST,
         O => CLK_50M
     );
+    
+    freq_div_1m_inst: freq_div
+    generic map
+    (
+        DIV => 50000000 / 1000000
+    )
+    port map
+    (
+        CLK => CLK_50M,
+        RST => RST,
+        O => CLK_1M
+    );
 
     freq_div_1000_inst: freq_div
     generic map
     (
-        DIV => 25000000 / 1000
+        DIV => 1000000 / 1000
     )
     port map
     (
-        CLK => CLK_25M,
+        CLK => CLK_1M,
         RST => RST,
         O => CLK_1000
     );
@@ -460,7 +472,7 @@ begin
     IR_inst : IR
     port map (
         rst => LOGIC_RST,
-        clk => CLK_1000,
+        clk => CLK_1M,
         RX => IR_RX,
         data => IR_DATA,
         done => IR_DONE

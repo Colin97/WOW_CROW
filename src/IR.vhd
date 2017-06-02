@@ -14,7 +14,7 @@ entity IR is
         bit_0_high : integer := 560;
         bit_1_high : integer := 1680;
         data_length : integer := 32;
-        error_range : integer := 10
+        error_range : integer := 200
     );
     port (
         rst : in std_logic;
@@ -61,7 +61,7 @@ begin
                         if cnt >= lead_high - error_range and cnt <= lead_high + error_range then
                             cnt <= 1;
                             current_state <= s_data_low;
-                            current_bit <= data_length - 1;
+                            current_bit <= 0;
                         else
                             current_state <= s_init;
                         end if;
@@ -83,21 +83,21 @@ begin
                     else 
                         if cnt >= bit_0_high - error_range and cnt <= bit_0_high + error_range then
                             data(current_bit) <= '0';
-                            if current_bit = 0 then
+                            if current_bit = 31 then
                                 done <= '1';
                                 current_state <= s_init;
                             else
-                                current_bit <= current_bit - 1;
+                                current_bit <= current_bit + 1;
                                 current_state <= s_data_low;
                                 cnt <= 1;
                             end if;
                         elsif cnt >= bit_1_high - error_range and cnt <= bit_1_high + error_range then
                             data(current_bit) <= '1';
-                            if current_bit = 0 then
+                            if current_bit = 31 then
                                 done <= '1';
                                 current_state <= s_init;
                             else
-                                current_bit <= current_bit - 1;
+                                current_bit <= current_bit + 1;
                                 current_state <= s_data_low;
                                 cnt <= 1;
                             end if;
