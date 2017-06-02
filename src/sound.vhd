@@ -8,7 +8,7 @@ use work.signals.all;
 
 entity sound is 
     generic (
-        length : integer := 100
+        length : integer := 300
     );
     port (
         rst : in std_logic;
