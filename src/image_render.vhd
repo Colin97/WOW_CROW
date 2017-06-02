@@ -65,7 +65,7 @@ begin
                                                              render_req.ADDR'length);
                 when s_read =>
                     if render_res.DONE = '1' then
-                        if (row + y) < 0 or (col + x) < 0 or (row + y) >= VGA_HEIGHT or (col + x) >= VGA_WIDTH / 2 or image_pixel(0) = '0' then
+                        if (row + y) < 0 or (col + x) < 0 or (row + y) >= VGA_HEIGHT or (col + x) >= VGA_WIDTH * 3 / 4 or image_pixel(0) = '0' then
                             current_state <= s_write;
                         else
                             current_state <= s_write;
