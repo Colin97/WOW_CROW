@@ -21,6 +21,9 @@ entity wow_crow is
           
         -- UART
         RXD: in std_logic;
+
+        -- IR
+        IR_RX: in std_logic;
         
         -- SRAM
         RAM_ADDR: out std_logic_vector(ADDR_WIDTH - 1 downto 0);
@@ -48,6 +51,25 @@ entity wow_crow is
 end;
 
 architecture behavioral of wow_crow is
+    component IR is 
+        generic (
+            lead_low : integer := 9000;
+            lead_high : integer := 4500;
+            data_low : integer := 560;
+            bit_0_high : integer := 560;
+            bit_1_high : integer := 1680;
+            data_length : integer := 32;
+            error_range : integer := 10
+        );
+        port (
+            rst : in std_logic;
+            clk : in std_logic;
+            RX : in std_logic;
+            data : out std_logic_vector(31 downto 0);
+            done : out std_logic
+        );
+    end component;
+
     component sound is 
         generic (
             length : integer := 100
@@ -261,6 +283,8 @@ architecture behavioral of wow_crow is
     signal game_state : STATE;
     signal started: std_logic;
     signal hit : std_logic;
+    signal IR_DATA : std_logic_vector(31 downto 0);
+    signal IR_DONE : std_logic;
 begin
     RST <= not RST_n;
     internal_rst <= RST or not bootloader_done;
@@ -431,5 +455,14 @@ begin
         clk => CLK_1000,
         hit => hit,
         sound_out => SOUND_OUT        
+    );
+
+    IR_inst : IR
+    port map (
+        rst => LOGIC_RST,
+        clk => CLK_1000,
+        RX => IR_RX,
+        data => IR_DATA,
+        done => IR_DONE
     );
 end;
