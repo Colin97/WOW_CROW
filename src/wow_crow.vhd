@@ -40,11 +40,26 @@ entity wow_crow is
         VGA_VSYNC: out std_logic;
         VGA_RED: out std_logic_vector(2 downto 0);
         VGA_GREEN: out std_logic_vector(2 downto 0);
-        VGA_BLUE: out std_logic_vector(2 downto 0)
+        VGA_BLUE: out std_logic_vector(2 downto 0);
+
+        -- SOUND
+        SOUND_OUT : out std_logic
     );
 end;
 
 architecture behavioral of wow_crow is
+    component sound is 
+        generic (
+            length : integer := 100
+        );
+        port (
+            rst : in std_logic;
+            clk : in std_logic;
+            hit : in std_logic;
+            sound_out : out std_logic
+        );
+    end component;
+
     component freq_div is
         generic
         (
@@ -199,6 +214,7 @@ architecture behavioral of wow_crow is
 
             pos : in integer range 0 to 199;
             speed : in integer range 0 to 31;
+            hit : out std_logic;
 
             output_state : out STATE
         );
@@ -244,6 +260,7 @@ architecture behavioral of wow_crow is
     signal speed : integer range 0 to 31;
     signal game_state : STATE;
     signal started: std_logic;
+    signal hit : std_logic;
 begin
     RST <= not RST_n;
     internal_rst <= RST or not bootloader_done;
@@ -392,6 +409,7 @@ begin
 
         pos => pos,
         speed => speed,
+        hit => hit,
 
         output_state => game_state
     );
@@ -405,5 +423,13 @@ begin
          vga_addr => vga_base,
         render_req => RENDERER_REQ,
         render_res => RENDERER_RES
+    );
+
+    sound_inst : sound 
+    port map (
+        rst => LOGIC_RST,
+        clk => CLK_1000,
+        hit => hit,
+        sound_out => SOUND_OUT        
     );
 end;

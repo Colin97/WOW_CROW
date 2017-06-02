@@ -22,6 +22,7 @@ entity game_logic is
 
         pos : in integer range 0 to 199;
         speed : in integer range 0 to 31;
+        hit : out std_logic;
 
         output_state : out STATE
     );
@@ -61,6 +62,7 @@ begin
                 end loop;
             end loop;
         elsif rising_edge(clk) then
+            hit <= '0';
             if game_state.state = 0 then
                 game_state.state <= 1;
             elsif game_state.state = 1 then
@@ -116,6 +118,7 @@ begin
                             else
                                 if game_state.crows(i).pos >= game_state.player1.pos and game_state.crows(i).pos <= game_state.player1.pos + 80 then
                                     if game_state.crows(i).bullets(j).height > 250 then
+                                        hit <= '1';
                                         game_state.crows(i).bullets(j).in_screen <= '0';
                                         game_state.player1.life <= game_state.player1.life - 1;
                                         if game_state.player1.life = 1 then 
