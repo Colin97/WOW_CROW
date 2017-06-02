@@ -19,25 +19,24 @@ entity sound is
 end entity sound;
 
 architecture sound_bhv of sound is 
-    signal cnt : integer := 0;
+    signal cnt : integer range 0 to 1023 := 0;
 begin 
-    sound_out <= '1' when cnt > 0 else '0';
+    sound_out <= '1' when cnt /= 0 else '0';
     main : process(clk, rst)
     begin
         if rst = '1' then
             cnt <= 0;
         elsif rising_edge(clk) then
-            if cnt > 0 then
+            if cnt /= 0 then
                 if cnt = length then
                     cnt <= 0;
                 else 
                     cnt <= cnt + 1;
                 end if;
-            else
-                if hit = '1' then
-                    cnt <= 1;
-                end if;
-            end if;
+           end if;
+           if hit = '1' then
+               cnt <= 1;
+           end if;
         end if;
     end process;
 end architecture sound_bhv;
