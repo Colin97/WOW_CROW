@@ -11,8 +11,8 @@ A double somatic game on FPGA.
 * VGA display 640x480 @ 60Hz
 * Smooth animations
 * Excellent game experience
-* Fantastic sound effects (TODO)
-* Remote control using IR (TODO)
+* Fantastic sound effects
+* Remote control using IR
 
 ## References
 
