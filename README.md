@@ -2,13 +2,13 @@
 
 ![logo](https://raw.githubusercontent.com/Colin97/WOW_CROW/master/artwork/demo.png)
 
-A double somatic game on FPGA.
+A somatic game on FPGA.
 
 ## Features
 
 * SD card bootloader (SPI mode) with SDHC/SDXC support
 * UART interface, wireless IMU and JY-901 packets parser
-* VGA display 640x480 @ 60Hz
+* VGA display 640x480 @ 60Hz with double buffering
 * Smooth animations
 * Excellent game experience
 * Fantastic sound effects

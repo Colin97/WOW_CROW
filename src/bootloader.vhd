@@ -8,7 +8,7 @@ entity bootloader is
     generic
     (
         WORD_WIDTH: integer := 32;
-        LOG2_WORD_WIDTH_DIV_8: integer := 2; -- log2(16 / 8)
+        LOG2_WORD_WIDTH_DIV_8: integer := 2; -- log2(32 / 8)
         RAM_SIZE: integer := 1024 * 1024 * 32 / 8
     );
     port
