@@ -1,3 +1,25 @@
+-- MIT License
+-- 
+-- Copyright (c) 2017 Wende Tan, Liu Minghua
+-- 
+-- Permission is hereby granted, free of charge, to any person obtaining a copy
+-- of this software and associated documentation files (the "Software"), to deal
+-- in the Software without restriction, including without limitation the rights
+-- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+-- copies of the Software, and to permit persons to whom the Software is
+-- furnished to do so, subject to the following conditions:
+-- 
+-- The above copyright notice and this permission notice shall be included in all
+-- copies or substantial portions of the Software.
+-- 
+-- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+-- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+-- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+-- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+-- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+-- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+-- SOFTWARE.
+
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.std_logic_unsigned.all;
@@ -31,8 +53,8 @@ entity bootloader is
 end;
 
 architecture behavioral of bootloader is
-    constant POWERON_WAIT_CYCLES: integer := 25000; -- 1ms, for CLK 25M -- FIXME: 25000
-    constant SPI_WAIT_CYCLES: integer := 1; -- ~400kHz, for CLK 25M -- FIXME: 32
+    constant POWERON_WAIT_CYCLES: integer := 25000; -- 1ms, if CLK = 25M
+    constant SPI_WAIT_CYCLES: integer := 1;
     constant DUMMY_CLOCKS: integer := 80;
     constant CMD_BITS: integer := 48;
     constant R1_BITS: integer := 8;
