@@ -164,27 +164,27 @@ architecture behavioral of wow_crow is
             RENDERER_RES: out RAM_RES
         );
     end component;
-    
+
     component bootloader is
         generic
         (
-            WORD_WIDTH: integer := 32;
-            LOG2_WORD_WIDTH_DIV_8: integer := 2; -- log2(16 / 8)
-            RAM_SIZE: integer := 1024 * 1024 * 32 / 8
+            WORD_WIDTH: integer := 32; -- word width of SRAM
+            LOG2_WORD_WIDTH_DIV_8: integer := 2; -- log2(32 / 8)
+            RAM_SIZE: integer := 1024 * 1024 * 32 / 8 -- SRAM size (bytes)
         );
         port
         (
-            CLK: in std_logic;
+            CLK: in std_logic; -- 25MHz
             RST: in std_logic;
 
             BL_REQ: out RAM_REQ;
             BL_RES: in RAM_RES;
-            
+
             SD_CS_n: out std_logic; -- SD_NCS, SD_DATA3_CD
             SD_SCLK: out std_logic; -- SD_CLK
             SD_MISO: in std_logic;  -- SD_DOUT, SD_DATA0_DO
             SD_MOSI: out std_logic; -- SD_DIN, SD_CMD
-            
+
             DONE: out std_logic;
             REJECTED: out std_logic;
             DBG: out std_logic_vector(3 downto 0)
