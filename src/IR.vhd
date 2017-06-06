@@ -29,8 +29,8 @@ architecture IR_bhv of IR is
     constant error_range : integer := 200;
 
     signal current_state : state := s_init;
-    signal cnt : integer := 0;
-    signal current_bit : integer := 0;
+    signal cnt : integer range 0 to lead_low + error_range + 1 := 0;
+    signal current_bit : integer range 0 to 31 := 0;
     signal rx_buff: std_logic;
 begin
     -- filter

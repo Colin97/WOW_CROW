@@ -402,7 +402,7 @@ begin
                         if byte_counter = SECTOR_SIZE - 1 then
                             -- assert byte_counter mod WORD_SIZE = WORD_SIZE - 1
                             BL_REQ.ADDR <= conv_std_logic_vector(
-                                sector_counter * SECTOR_SIZE + byte_counter / WORD_SIZE,
+                                (sector_counter * SECTOR_SIZE + byte_counter) / WORD_SIZE,
                                 BL_REQ.ADDR'length
                             );
                             cmd_return_state <= st_cmd17_read_crc;
@@ -412,7 +412,7 @@ begin
                         else
                             if byte_counter mod WORD_SIZE = WORD_SIZE - 1 then
                                 BL_REQ.ADDR <= conv_std_logic_vector(
-                                    sector_counter * SECTOR_SIZE + byte_counter / WORD_SIZE,
+                                    (sector_counter * SECTOR_SIZE + byte_counter) / WORD_SIZE,
                                     BL_REQ.ADDR'length
                                 );
                                 cmd_return_state <= st_cmd17_read_data;
