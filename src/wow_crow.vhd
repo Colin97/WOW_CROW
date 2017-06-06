@@ -82,13 +82,11 @@ architecture behavioral of wow_crow is
     end component;
 
     component sound is 
-        generic (
-            length : integer := 100
-        );
         port (
             rst : in std_logic;
             clk : in std_logic;
             hit : in std_logic;
+            game_over : in std_logic;
             sound_out : out std_logic
         );
     end component;
@@ -297,6 +295,7 @@ architecture behavioral of wow_crow is
     signal IR_DATA : std_logic_vector(31 downto 0);
     signal IR_DONE, IR_REPEAT, RC_OK, RC_UP : std_logic;
     signal start: std_logic;
+    signal game_over : std_logic;
 begin
     RST <= not RST_n;
     internal_rst <= RST or not bootloader_done;
@@ -477,12 +476,14 @@ begin
         render_res => RENDERER_RES
     );
 
+	game_over <= '1' when game_state.state = 2 else '0';
     sound_inst : sound 
     port map (
         rst => LOGIC_RST,
         clk => CLK_1000,
         hit => hit,
-        sound_out => SOUND_OUT        
+        game_over => game_over,
+        sound_out => SOUND_OUT   
     );
 
     IR_inst : IR
