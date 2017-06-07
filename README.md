@@ -21,5 +21,6 @@ A somatic game on FPGA.
 * [How to Use MMC/SDC](http://elm-chan.org/docs/mmc/mmc_e.html)
 * [VGA Signal Timing](http://tinyvga.com/vga-timing)
 * JY-901 Data Sheet
+* [IR remote controls hex codes and signal timing - Extron](http://media.extron.com/download/files/userman/68-1323-01IRremoteshexcode.pdf)
 
 
