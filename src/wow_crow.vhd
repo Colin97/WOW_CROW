@@ -46,7 +46,9 @@ entity wow_crow is
         VGA_BLUE: out std_logic_vector(2 downto 0);
 
         -- SOUND
-        SOUND_OUT : out std_logic
+        SOUND_OUT: out std_logic;
+        MUSIC_EN: out std_logic;
+        MUSIC_SEL: out std_logic
     );
 end;
 
@@ -297,6 +299,8 @@ architecture behavioral of wow_crow is
     signal start: std_logic;
     signal game_over : std_logic;
 begin
+    MUSIC_EN <= '0' when game_state.state = 0 else '1';
+    MUSIC_SEL <= '0' when game_state.state = 1 else '1';
     RST <= not RST_n;
     internal_rst <= RST or not bootloader_done;
     LOGIC_RST <= (RC_UP or not LOGIC_RST_n) or internal_rst;
