@@ -27,7 +27,7 @@ architecture sound_bhv of sound is
     signal time_cnt : integer range 0 to 1023 := 0;
     signal sound : std_logic;
 begin 
-    sound_out <= '1' when sound = '1' else '0';
+    sound_out <= sound;
     main : process(clk, rst)
     begin
         if rst = '1' then
@@ -78,6 +78,9 @@ begin
                     else 
                         cnt <= cnt + 1;
                     end if;
+                when others =>
+                    sound <= '0';
+                    current_state <= s_init;
             end case;
         end if;
     end process;
