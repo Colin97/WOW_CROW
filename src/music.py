@@ -1,19 +1,22 @@
 import RPi.GPIO as GPIO
 import subprocess
 
+MUSIC_EN = 11
+MUSIC_SEL = 13
+AUDIOS = {False: 'bgm.wav', True: 'gg.wav'}
+
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
 
-GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(13, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(MUSIC_EN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(MUSIC_SEL, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 player = None
-audios = {False: 'bgm.wav', True: 'gg.wav'}
 current_audio = ''
 
 while True:
-	enable = GPIO.input(11)
-	sel = GPIO.input(13)
+	enable = GPIO.input(MUSIC_EN)
+	sel = GPIO.input(MUSIC_SEL)
 
 	if not enable and player and player.poll() == None:
 		player.kill()
@@ -21,9 +24,10 @@ while True:
 		current_audio = ''
 		print 'killed'
 
-	if current_audio != audios[sel] and enable:
+	audio = AUDIOS[sel]
+	if current_audio != audio and enable:
 		if player and player.poll() == None:
 			player.kill()
-		player = subprocess.Popen(['/usr/bin/mplayer', audios[sel]])
-		current_audio = audios[sel]
-		print audios[sel]
+		player = subprocess.Popen(['/usr/bin/mplayer', audio])
+		current_audio = audio
+		print audio
