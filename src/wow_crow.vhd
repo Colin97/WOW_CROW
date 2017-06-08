@@ -480,13 +480,13 @@ begin
         render_res => RENDERER_RES
     );
 
-	game_over <= '1' when game_state.state = 2 else '0';
+	-- game_over <= '1' when game_state.state = 2 else '0';
     sound_inst : sound 
     port map (
         rst => LOGIC_RST,
         clk => CLK_1000,
         hit => hit,
-        game_over => game_over,
+        game_over => '0',
         sound_out => SOUND_OUT   
     );
 
