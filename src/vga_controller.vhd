@@ -83,8 +83,8 @@ begin
     DONE <= '1' when next_y >= v_active else '0';
 
     -- starts at h_active and v_active
-    HSYNC <= '1' when (h_counter >= h_active + h_front_porch) and (h_counter < h_active + h_front_porch + h_sync_pulse) else '0';
-    VSYNC <= '1' when (v_counter >= v_active + v_front_porch) and (v_counter < v_active + v_front_porch + v_sync_pulse) else '0';
+    HSYNC <= '0' when (h_counter >= h_active + h_front_porch) and (h_counter < h_active + h_front_porch + h_sync_pulse) else '1';
+    VSYNC <= '0' when (v_counter >= v_active + v_front_porch) and (v_counter < v_active + v_front_porch + v_sync_pulse) else '1';
 
     process(VGA_CLK, RST)
     begin
