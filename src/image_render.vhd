@@ -89,6 +89,7 @@ begin
                         end if;
                         if row = image_height(image_id) then
                             current_state <= s_done;
+                            render_req.WE_n <= '1';
                         else
                             current_state <= s_read;
                             render_req.OE_n <= '0';

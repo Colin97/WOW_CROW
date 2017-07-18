@@ -34,9 +34,9 @@ entity vga_controller is
         -- outputs
         HSYNC: out std_logic;
         VSYNC: out std_logic;
-        RED: out std_logic_vector(2 downto 0);
-        GREEN: out std_logic_vector(2 downto 0);
-        BLUE: out std_logic_vector(2 downto 0);
+        RED: out std_logic_vector(4 downto 0);
+        GREEN: out std_logic_vector(5 downto 0);
+        BLUE: out std_logic_vector(4 downto 0);
         DONE: out std_logic
     );
 end;
@@ -91,21 +91,21 @@ begin
         if RST = '1' then
             h_counter <= conv_std_logic_vector(0, h_counter'length);
             v_counter <= conv_std_logic_vector(0, v_counter'length);
-            RED <= "000";
-            GREEN <= "000";
-            BLUE <= "000";
+            RED <= (others => '0');
+            GREEN <= (others => '0');
+            BLUE <= (others => '0');
         else
             if rising_edge(VGA_CLK) then
                 h_counter <= next_x;
                 v_counter <= next_y;
                 if next_en = '1' then
-                    RED <= VGA_RES.DIN(9 downto 7);
-                    GREEN <= VGA_RES.DIN(6 downto 4);
-                    BLUE <= VGA_RES.DIN(3 downto 1);
+                    RED <= VGA_RES.DIN(15 downto 11);
+                    GREEN <= VGA_RES.DIN(10 downto 6) & "0";
+                    BLUE <= VGA_RES.DIN(5 downto 1);
                 else
-                    RED <= "000";
-                    GREEN <= "000";
-                    BLUE <= "000";
+                    RED <= (others => '0');
+                    GREEN <= (others => '0');
+                    BLUE <= (others => '0');
                 end if;
             end if;
         end if;

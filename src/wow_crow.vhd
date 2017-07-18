@@ -7,17 +7,17 @@ use work.image_info.all;
 entity wow_crow is
     generic
     (
-        SYS_CLK: integer := 100000000
+        SYS_CLK: integer := 50000000
     );
     port
     (
         CLK: in std_logic; 
         RST_n: in std_logic;
-        LOGIC_RST_n: in std_logic;
-        START_n: in std_logic;
+        -- LOGIC_RST_n: in std_logic;
+        -- START_n: in std_logic;
         
         -- debug signals
-        DBG: out std_logic_vector(55 downto 0);
+        -- DBG: out std_logic_vector(55 downto 0);
           
         -- UART
         RXD: in std_logic;
@@ -41,14 +41,18 @@ entity wow_crow is
         -- VGA
         VGA_HSYNC: out std_logic;
         VGA_VSYNC: out std_logic;
-        VGA_RED: out std_logic_vector(2 downto 0);
-        VGA_GREEN: out std_logic_vector(2 downto 0);
-        VGA_BLUE: out std_logic_vector(2 downto 0);
+        VGA_RED: out std_logic_vector(4 downto 0);
+        VGA_GREEN: out std_logic_vector(5 downto 0);
+        VGA_BLUE: out std_logic_vector(4 downto 0);
+        
+        LED: out std_logic_vector(3 downto 0);
+        
+        EX_LED: out std_logic
 
         -- SOUND
-        SOUND_OUT: out std_logic;
-        MUSIC_EN: out std_logic;
-        MUSIC_SEL: out std_logic
+        -- SOUND_OUT: out std_logic;
+        -- MUSIC_EN: out std_logic;
+        -- MUSIC_SEL: out std_logic
     );
 end;
 
@@ -223,9 +227,9 @@ architecture behavioral of wow_crow is
             -- outputs
             HSYNC: out std_logic;
             VSYNC: out std_logic;
-            RED: out std_logic_vector(2 downto 0);
-            GREEN: out std_logic_vector(2 downto 0);
-            BLUE: out std_logic_vector(2 downto 0);
+            RED: out std_logic_vector(4 downto 0);
+            GREEN: out std_logic_vector(5 downto 0);
+            BLUE: out std_logic_vector(4 downto 0);
             DONE: out std_logic
         );
     end component;
@@ -267,6 +271,25 @@ architecture behavioral of wow_crow is
             render_res: in RAM_RES
         );
     end component;
+    
+    component pll IS
+        PORT
+        (
+            areset		: IN STD_LOGIC  := '0';
+            inclk0		: IN STD_LOGIC  := '0';
+            c0		: OUT STD_LOGIC ;
+            c1		: OUT STD_LOGIC ;
+            locked		: OUT STD_LOGIC 
+        );
+    END component;
+
+    -- dummy signals
+    signal LOGIC_RST_n, START_n: std_logic;
+    signal DBG: std_logic_vector(55 downto 0);
+    signal SOUND_OUT: std_logic;
+    signal MUSIC_EN: std_logic;
+    signal MUSIC_SEL: std_logic;
+    signal locked: std_logic;
 
     signal RST, LOGIC_RST: std_logic;
 
@@ -298,13 +321,18 @@ architecture behavioral of wow_crow is
     signal IR_DONE, IR_REPEAT, RC_OK, RC_UP : std_logic;
     signal start: std_logic;
     signal game_over : std_logic;
+    signal uart_error: std_logic;
 begin
+    LOGIC_RST_n <= '1';
+    START_n <= '1';
+
     MUSIC_EN <= '0' when game_state.state = 0 else '1';
     MUSIC_SEL <= '0' when game_state.state = 1 else '1';
-    RST <= not RST_n;
+    RST <= not RST_n or not locked;
     internal_rst <= RST or not bootloader_done;
     LOGIC_RST <= (RC_UP or not LOGIC_RST_n) or internal_rst;
     RAM_CS_n <= '0';
+    EX_LED <= not IR_RX;
     
     start <= not START_n or RC_OK;
     
@@ -317,10 +345,23 @@ begin
         end if;
     end process;
 
+    pll_inst: pll
+    port map
+    (
+        inclk0 => CLK,
+        areset => not RST_n,
+        locked => locked,
+        
+        c0 => CLK_50M,
+        c1 => CLK_25M
+    );
+    -- locked <= '1';
+
+    /*
     freq_div_25m_inst: freq_div
     generic map
     (
-        DIV => 100000000 / 25000000
+        DIV => 50000000 / 25000000
     )
     port map
     (
@@ -328,7 +369,9 @@ begin
         RST => RST,
         O => CLK_25M
     );
+    */
     
+    /*
     freq_div_50m_inst: freq_div
     generic map
     (
@@ -340,6 +383,8 @@ begin
         RST => RST,
         O => CLK_50M
     );
+    */
+    -- CLK_50M <= CLK;
     
     freq_div_1m_inst: freq_div
     generic map
@@ -384,20 +429,21 @@ begin
         RST => RST,
         DATA => UART_DATA,
         READY => UART_DATA_READY,
-        ERROR => DBG(2),
+        ERROR => uart_error,
 
         pos => pos,
         speed => speed
     );
     
     DBG(3) <= RST_n;
-    --DBG(4) <= game_state.crows(0).in_screen;
-    --DBG(5) <= game_state.crows(1).in_screen;
+    -- DBG(4) <= game_state.crows(0).in_screen;
+    -- DBG(5) <= game_state.crows(1).in_screen;
     DBG(4) <= RC_OK;
     DBG(5) <= RC_UP;
     DBG(6) <= game_state.crows(2).in_screen;
     DBG(7) <= game_state.crows(3).in_screen;
     DBG(11 downto 8) <= addr_buff(19 downto 16);
+    LED(3 downto 0) <= addr_buff(19 downto 16) when not bootloader_done else uart_error & RC_UP & RC_OK & "1";
     DBG(15 downto 12) <= bldbg;
     DBG(47 downto 16) <= RAM_DQ;
     RAM_ADDR <= addr_buff;
@@ -405,7 +451,7 @@ begin
     sram_controller_inst: sram_controller
     port map
     (
-        CLK => CLK_25M,
+        CLK => CLK_50M,
         RST => internal_rst,
         
         RAM_ADDR => addr_buff,
@@ -424,7 +470,7 @@ begin
     bootloader_inst: bootloader
     port map
     (
-        CLK => CLK_25M,
+        CLK => CLK_50M,
         RST => RST,
         
         BL_REQ => BOOTLOADER_REQ,
@@ -472,7 +518,7 @@ begin
     render_inst : render
     port map (
         rst => LOGIC_RST,
-        clk => CLK_25M,
+        clk => CLK_50M,
         state => game_state,
         vga_done => vga_done,
          vga_addr => vga_base,

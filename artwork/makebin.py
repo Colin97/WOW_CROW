@@ -9,7 +9,7 @@ def preview(img):
         for x in range(w):
             r, g, b, a = img.getpixel((x, y))
             if a >= ALPHA_T:
-                img.putpixel((x, y), (r & 0b11100000, g & 0b11100000, b & 0b11100000, 255))
+                img.putpixel((x, y), (r & 0b11111000, g & 0b11111000, b & 0b11111000, 255))
             else:
                 img.putpixel((x, y), (0, 0, 0, 0))
     img.show()
@@ -20,10 +20,10 @@ def get_bin(img, dword=False):
     for y in range(h):
         for x in range(w):
             r, g, b, a = img.getpixel((x, y))
-            # MSB XXXXXXRRRGGGBBBA LSB
+            # MSB RRRRRGGGGGBBBBBA LSB
             if a >= ALPHA_T:
-                word = (((r >> 5) & 0b111) << 7) | (((g >> 5) & 0b111) << 4) | \
-                       (((b >> 5) & 0b111) << 1) | 0b1
+                word = (((r >> 3) & 0b11111) << 11) | (((g >> 3) & 0b11111) << 6) | \
+                       (((b >> 3) & 0b11111) << 1) | 0b1
             else:
                 word = 0
             buff += struct.pack('<H', word)
